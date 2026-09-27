@@ -1,4 +1,8 @@
-# CLAUDE.md — Sleep & Recovery Tracker (Flutter)
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Sleep & Recovery Tracker (Flutter)
 
 Bu dosya projede çalışan her ajanın ve geliştiricinin **tek doğruluk kaynağıdır**. Renk, tipografi, ölçü, bileşen ve ekran kararları buradadır. Bir ekran promptu bu dosyayla çelişirse bu dosya kazanır; değişiklik gerekiyorsa önce burayı güncelle.
 
@@ -82,6 +86,18 @@ lib/
 - `domain/`: elle yazılmış değişmez modeller + **abstract** repository (`abstract interface class SleepRepository`).
 - `data/`: `LocalSleepRepository` (shared_preferences); `HealthSleepRepository` sonradan aynı arayüzle eklenir. Provider override ile değiştirilir.
 - `presentation/`: ekran, ekran-özel widget'lar, Riverpod controller'lar (`Notifier`).
+- `core/theme/app_sizes.dart` (`AppSizes`): bileşen ölçüleri (dokunma hedefi, ikon, buton/chip yükseklikleri). Sabit boyut gerekiyorsa buraya ekle.
+
+### 4.1 Veri akışı
+
+- `main.dart`: `SharedPreferences` yüklenir ve `sharedPreferencesProvider`a override edilir (override edilmezse provider hata fırlatır). `notificationServiceProvider` web'de `NoopNotificationService`, diğer platformlarda `LocalNotificationService` ile gelir.
+- Tek veri kaynağı `sleepLogProvider`dır (`features/sleep_log/presentation/sleep_log_providers.dart`, `AsyncNotifier<List<SleepEntry>>`, geceye göre artan sıralı). Bugün, Trendler, Kalite, Seriler, Rapor ve Etken analizi bu listeden türeyen provider'larla hesaplanır. Ayrı kalıcı özet tutulmaz.
+- Kayıt kimliği gece anahtarıdır: `SleepEntry.id = nightKey(nightOf(wake))` (`2026-09-24`; uyanıştan 12 saat geriye gidilerek bulunan akşam). Tarih aritmetiğinde `addDays`/`dateOnly` kullan (DST güvenli). Gece başına tek kayıt vardır.
+- Evreler (Derin/REM/Hafif) ölçülmez, `SleepStages` ile süreden **tahmin** edilir. UI bunu "tahmini" diye sunar.
+- Şimdiki zaman yalnızca `clockProvider`dan okunur. `todayProvider` uygulama öne gelince (`AppLifecycleListener.onResume`) invalidate edilir.
+- `settingsControllerProvider` (`UserSettings`): `onboardingDone` ve `trackingStart` (Uyku modu) alanlarını içerir. `appRouterProvider` bu iki alanı dinleyip `redirect` ile kurulum ve uyku modu kilitlerini uygular (`AppRoutes.beforeOnboarding`, `AppRoutes.whileTracking`). Yeni tam ekran rota eklerken bu kümeleri gözden geçir.
+- Bildirim payload'ı rota string'idir; `UykuApp` bunu `router.push` ile açar. Açılışta `syncReminder()` planlı bildirimleri yeniden kurar.
+- Dolu ekranları görmek için uygulamada **Ayarlar → Örnek verilerle doldur** kullanılır.
 
 ## 5. Tasarım tokenları
 
@@ -324,6 +340,15 @@ Ek paylaşılanlar:
 ## 11. Doğrulama
 
 Projede test yok.
+
+```sh
+flutter pub get
+flutter run              # ilk açılışta Kurulum gelir
+flutter analyze
+```
+
+- `pubspec.yaml`: `path_provider_android` 2.2.x'e sabitlenmiştir (2.3+ NDK 28.2 indirtir). Kaldırmadan önce sor.
+- Uyku sesi eklemek için dosyayı `assets/sounds/` altına koy ve `lib/features/sounds/domain/sleep_sound.dart` içindeki `SleepSound`'a ekle. (`tool/generate_sounds.py` eski WAV gürültü üreticisidir; mevcut MP3'leri üretmez.)
 
 1. `flutter analyze` **0 uyarı** vermeli (`very_good_analysis`).
 2. Sabit değer taraması:
