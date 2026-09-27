@@ -1,4 +1,52 @@
 {
     "git.ignoreLimitWarning": true,
-    "java.configuration.updateBuildConfiguration": "disabled"
+
+    // Java/Gradle: android/ klasörünü ayrı proje olarak tarama (sahte hatalar).
+    "java.configuration.updateBuildConfiguration": "disabled",
+    "java.import.gradle.enabled": false,
+    "java.import.maven.enabled": false,
+    "java.gradle.buildServer.enabled": "off",
+    "gradle.autoDetect": "off",
+    "java.import.exclusions": [
+        "**/node_modules/**",
+        "**/.metadata/**",
+        "**/archetype-resources/**",
+        "**/META-INF/maven/**",
+        "**/android/**",
+        "**/build/**"
+    ],
+
+    // Dart / Flutter
+    "[dart]": {
+        "editor.formatOnSave": true,
+        "editor.codeActionsOnSave": {
+            "source.fixAll": "explicit",
+            "source.organizeImports": "explicit"
+        },
+        "editor.rulers": [80],
+        "editor.selectionHighlight": false,
+        "editor.suggestSelection": "first",
+        "editor.tabCompletion": "onlySnippets",
+        "editor.wordBasedSuggestions": "off"
+    },
+    "dart.lineLength": 80,
+    "dart.closingLabels": true,
+    "dart.previewFlutterUiGuides": true,
+    "dart.flutterHotReloadOnSave": "manual",
+
+    // Build çıktıları: gezgin, arama ve dosya izleme dışında.
+    "files.exclude": {
+        "**/.dart_tool": true,
+        "build": true
+    },
+    "search.exclude": {
+        "**/build": true,
+        "**/.dart_tool": true,
+        "android/.gradle": true,
+        "ios/Pods": true
+    },
+    "files.watcherExclude": {
+        "**/build/**": true,
+        "**/.dart_tool/**": true
+    }
 }
