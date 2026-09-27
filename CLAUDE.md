@@ -349,6 +349,7 @@ flutter analyze
 
 - `pubspec.yaml`: `path_provider_android` 2.2.x'e sabitlenmiştir (2.3+ NDK 28.2 indirtir). Kaldırmadan önce sor.
 - Uyku sesi eklemek için dosyayı `assets/sounds/` altına koy ve `lib/features/sounds/domain/sleep_sound.dart` içindeki `SleepSound`'a ekle. (`tool/generate_sounds.py` eski WAV gürültü üreticisidir; mevcut MP3'leri üretmez.)
+- Uygulama ikonu `python tool/generate_icon.py` ile üretilir (Pillow): Android legacy + adaptive + monochrome, iOS, web. İkonu değiştirmek için PNG'leri elle düzenleme, scripti değiştirip yeniden çalıştır.
 
 1. `flutter analyze` **0 uyarı** vermeli (`very_good_analysis`).
 2. Sabit değer taraması:
