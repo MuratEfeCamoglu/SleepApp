@@ -35,7 +35,7 @@ class AppShell extends StatelessWidget {
                 NavPanelItem(label: strings.nav_today, icon: AppIcons.home),
                 NavPanelItem(label: strings.nav_trends, icon: AppIcons.bars),
                 NavPanelItem(label: strings.nav_quality, icon: AppIcons.gauge),
-                NavPanelItem(label: strings.nav_routine, icon: AppIcons.clock),
+                NavPanelItem(label: strings.nav_dreams, icon: AppIcons.dream),
               ],
               center: NavPanelItem(
                 label: strings.nav_log,
@@ -91,11 +91,8 @@ class _TabPageState extends State<TabPage> {
           padding: EdgeInsets.fromLTRB(side, top, side, bottom),
           itemCount: widget.children.length,
           separatorBuilder: (_, _) => SizedBox(height: widget.gap),
-          itemBuilder: (_, i) => Entrance(
-            index: i,
-            animate: _entering,
-            child: widget.children[i],
-          ),
+          itemBuilder: (_, i) =>
+              Entrance(index: i, animate: _entering, child: widget.children[i]),
         );
       },
     );

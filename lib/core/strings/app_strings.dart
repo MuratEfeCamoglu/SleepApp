@@ -40,6 +40,8 @@ class AppStrings {
 
   String get nav_routine => 'Rutin';
 
+  String get nav_dreams => 'Rüya';
+
   String get common_back => 'Geri';
 
   String get common_close => 'Kapat';
@@ -384,6 +386,17 @@ class AppStrings {
 
   String get settings_gallery => 'Bileşen galerisi';
 
+  String get settings_sample => 'Örnek verilerle doldur';
+
+  String get settings_sampleTitle => 'Örnek verilerle doldurulsun mu?';
+
+  String get settings_sampleBody =>
+      'Son 60 gece örnek kayıtlarla (rüya notları dahil) doldurulur. Aynı gecelerdeki kayıtların üzerine yazılır.';
+
+  String get settings_sampleConfirm => 'Doldur';
+
+  String get settings_sampleDone => 'Örnek veriler eklendi';
+
   String settings_version(String version) {
     return 'Sürüm $version';
   }
@@ -512,10 +525,15 @@ class AppStrings {
 
   String get gallery_darkTheme => 'Koyu tema';
 
+  String get gallery_replay => 'Animasyonu yeniden oynat';
+
   String get log_startTitle => 'Bu gece için kayıt yok';
 
   String get log_startBody =>
       'Yatarken Uyku modunu başlat, uyanınca bitir. Süreyi yalnızca saat ölçer; sonra nasıl uyandığını eklersin.';
+
+  String get log_pendingDream =>
+      'Rüya notun saklandı; uykunu kaydettiğinde not alanına eklenecek.';
 
   // Etken analizi
 
@@ -909,4 +927,595 @@ class AppStrings {
   String get goals_open => 'Hedefleri düzenle';
 
   String get time_separator => ':';
+
+  // Premium
+
+  String get premium_title => 'Premium';
+
+  String get premium_lead =>
+      'Uykunu daha derinden anla. Temel takip her zaman ücretsiz kalır.';
+
+  String get premium_compareTitle => 'Neler var?';
+
+  String get premium_colFree => 'Ücretsiz';
+
+  String get premium_colPremium => 'Premium';
+
+  String get premium_rowTracking => 'Uyku kaydı, trendler ve kalite';
+
+  String get premium_rowRoutine =>
+      'Akşam rutini, uyku sesleri ve haftalık rapor';
+
+  String get premium_rowHealthFree => 'Uyku sağlığı skoru ve kontrolü';
+
+  String get premium_rowHealth => 'Uyku sağlığı ayrıntıları ve skor geçmişi';
+
+  String get premium_rowDreamsFree => 'Rüya günlüğü ve ilk sembolün yorumu';
+
+  String get premium_rowDreamReading => 'Rüya yorumunun tamamı ve genel tema';
+
+  String get premium_rowDreamInsights => 'Rüya içgörüleri';
+
+  String get premium_rowDreamInterviewFree => 'Sorulu rüya yorumu (özet)';
+
+  String get premium_rowDreamInterviewDeep =>
+      'Sembol ve uyku bağlantılı derin yorum';
+
+  String get premium_rowExport => 'CSV dışa aktarma';
+
+  String premium_rowSemantic(String feature, {required bool free}) => free
+      ? "$feature: ücretsiz ve Premium'da var"
+      : "$feature: yalnızca Premium'da var";
+
+  String get premium_priceTitle => 'Fiyat';
+
+  String get premium_pricePlaceholder => 'Fiyat mağaza bağlanınca gösterilecek';
+
+  String get premium_comingSoon => 'Yakında';
+
+  String get premium_tryDebug => "Premium'u dene (geliştirici)";
+
+  String get premium_disableDebug => "Premium'u kapat (geliştirici)";
+
+  String get premium_active => 'Premium aktif';
+
+  String get premium_activeBody => 'Tüm Premium özellikler açık.';
+
+  String premium_activeSince(String date) => '$date tarihinden beri açık.';
+
+  String get premium_gateTitle => 'Premium özellik';
+
+  String get premium_gateBody => 'Bu bölüm Premium ile açılır.';
+
+  String get premium_unlock => 'Premium ile aç';
+
+  String get premium_settingsGroup => 'Üyelik';
+
+  String get premium_settingsRow => 'Premium';
+
+  String get premium_settingsActive => 'Aktif';
+
+  String get premium_settingsInactive => 'Kapalı';
+
+  // Dışa aktarma
+
+  String get export_csvRow => 'CSV olarak kopyala';
+
+  String get export_locked => 'Premium';
+
+  String get export_empty => 'Kayıt yok';
+
+  String get export_copied => 'Kopyalandı';
+
+  // Uyku sağlığı
+
+  String get health_title => 'Uyku sağlığı';
+
+  String get health_eyebrow => 'Son 14 gece';
+
+  String get health_scoreLabel => 'Uyku sağlığı skoru';
+
+  String get health_scoreMax => '/100';
+
+  String get health_bandVeryGood => 'Çok iyi';
+
+  String get health_bandGood => 'İyi';
+
+  String get health_bandFair => 'Orta';
+
+  String get health_bandNeedsWork => 'Geliştirilebilir';
+
+  String health_ringSemantic(int score, String band) =>
+      'Uyku sağlığı skoru 100 üzerinden $score, $band.';
+
+  String health_basedOn(int nights) => 'Son 14 gecedeki $nights kayda göre.';
+
+  String get health_debt => 'Uyku borcu';
+
+  String get health_debtBody =>
+      'Hedefin altında kalan sürelerin toplamı. Hedefi aşan geceler borcu biraz azaltır.';
+
+  String get health_regularity => 'Düzenlilik';
+
+  String get health_regularityBody =>
+      'Ardışık gecelerde aynı saatlerde uyuyup uyanma ölçüsü. 100 en düzenlisi.';
+
+  String get health_jetlag => 'Sosyal jetlag';
+
+  String get health_jetlagBody =>
+      'Hafta sonu uyku saatinin hafta içine göre kayması (son 28 gece).';
+
+  String get health_needMore => 'Daha fazla kayıt gerekli';
+
+  String get health_premiumTitle => 'Ayrıntılı analiz';
+
+  String get health_lockTitle => 'Skorunu daha yakından incele';
+
+  String get health_lockBody =>
+      'Skor dökümü, 30 gecelik geçmiş ve sana özel öneriler Premium ile açılır.';
+
+  String get health_breakdownTitle => 'Skorun dökümü';
+
+  String get health_compDuration => 'Süre';
+
+  String get health_compRegularity => 'Düzenlilik';
+
+  String get health_compDebt => 'Uyku borcu';
+
+  String get health_compMood => 'Uyanış hissi';
+
+  String health_points(int points, int max) => '$points / $max';
+
+  String health_componentSemantic(String label, int points, int max) =>
+      '$label: $max puan üzerinden $points';
+
+  String get health_regularityExcluded =>
+      'Düzenlilik için yeterli ardışık kayıt yok; skor diğer bileşenlerden hesaplandı.';
+
+  String get health_historyTitle => 'Son 30 gece';
+
+  String get health_historyEmpty => 'Grafik için daha fazla kayıt gerekli.';
+
+  String health_historySemantic(int nights, int low, int high, int last) =>
+      'Son 30 gecede $nights gece için skor var. En düşük $low, en yüksek $high, son değer $last.';
+
+  String get health_tipsTitle => 'Önerilerin';
+
+  String get health_tipPayDebtTitle => 'Borcu azalt';
+
+  String get health_tipPayDebt => 'Bu hafta 2 gece 30 dk erken yat.';
+
+  String get health_tipMoreSleepTitle => 'Süreyi artır';
+
+  String get health_tipMoreSleep =>
+      'Ortalaman hedefin altında. Yatışı 15 dk öne çekerek başla.';
+
+  String get health_tipSteadyTitle => 'Saatini sabitle';
+
+  String get health_tipSteady => 'Yatış saatini her gün ±30 dk içinde tut.';
+
+  String get health_tipWeekendTitle => 'Hafta sonu kayması';
+
+  String health_tipWeekend(String shift) =>
+      'Hafta sonu uyku saatin $shift kayıyor. Farkı 1 saatin altında tutmayı dene.';
+
+  String get health_tipWindDownTitle => 'Sakin bir geçiş';
+
+  String get health_tipWindDown =>
+      'Yatmadan 30 dk önce ekranı bırak ve akşam rutinine geç.';
+
+  String get health_tipKeepGoingTitle => 'Ritmini koru';
+
+  String get health_tipKeepGoing =>
+      'Değerlerin iyi görünüyor; aynı düzende devam et.';
+
+  String get health_emptyTitle => 'Biraz daha kayıt gerekli';
+
+  String get health_emptyBody =>
+      'Uyku sağlığı skoru için son 14 gecede en az 3 kayıt gerekir.';
+
+  String get health_emptyAction => 'Uykunu kaydet';
+
+  String get health_checkCardTitle => 'Uyku sağlığı kontrolünü yap';
+
+  String get health_checkCardBody =>
+      '6 kısa soruyla dikkat etmeye değer işaretlere bak. Ücretsiz.';
+
+  String health_checkLast(String date) => 'Son kontrol: $date';
+
+  String health_checkLastFlags(int count) => '$count işarete dikkat';
+
+  String get health_checkLastClear => 'Belirgin bir işaret yok';
+
+  String get health_disclaimer =>
+      'Bu skor tahminidir, tıbbi değerlendirme değildir.';
+
+  String health_cardTitle(int score, String band) =>
+      'Uyku sağlığı $score · $band';
+
+  String health_cardBody(String debt) => 'Uyku borcu $debt';
+
+  String get health_checkTitle => 'Uyku sağlığı kontrolü';
+
+  String get health_checkEyebrow => 'Son bir ay';
+
+  String get health_checkLead =>
+      'Son bir ayını düşünerek cevapla. Bu kontrol yalnızca dikkat etmeye değer işaretleri gösterir.';
+
+  String health_checkProgress(int index, int total) => 'Soru $index / $total';
+
+  String get health_qBreathing =>
+      'Uyurken horladığını ya da nefesinin kısa süre durduğunu biri fark etti mi?';
+
+  String get health_qDaytimeSleepiness =>
+      'Gün içinde otururken, okurken ya da bir şey izlerken istemeden uyukladığın oluyor mu?';
+
+  String get health_qFallingAsleep =>
+      'Yattıktan sonra uykuya dalman yarım saatten uzun sürüyor mu?';
+
+  String get health_qNightWaking =>
+      'Gece uyanıp yeniden uykuya dalmakta zorlandığın oluyor mu?';
+
+  String get health_qMorningTired =>
+      'Yeterince uyuduğun gecelerden sonra bile yorgun uyandığın oluyor mu?';
+
+  String get health_qRestlessLegs =>
+      'Akşam dinlenirken bacaklarında huzursuzluk ya da onları oynatma isteği hissediyor musun?';
+
+  String get health_answerNever => 'Hiç';
+
+  String get health_answerSometimes => 'Bazen';
+
+  String get health_answerOften => 'Sık';
+
+  String get health_answerNightly => 'Neredeyse her gece';
+
+  String get health_checkSubmit => 'Sonucu gör';
+
+  String get health_checkRetake => 'Kontrolü yeniden yap';
+
+  String get health_checkDone => 'Tamam';
+
+  String get health_checkResultTitle => 'Sonucun';
+
+  String health_checkTakenAt(String date) => '$date tarihinde yapıldı';
+
+  String get health_flagBreathingTitle => 'Uykuda nefes düzeni';
+
+  String get health_flagBreathing =>
+      'Uykuda horlama ya da nefes duraklaması fark edilmiş. Bu, uykunun dinlendiriciliğini etkileyebilir.';
+
+  String get health_flagDaytimeTitle => 'Gün içi uyuklama';
+
+  String get health_flagDaytime =>
+      'Gün içinde sık uyuklamak, gece uykusunun yeterince dinlendirmediğine işaret edebilir. Uykulu hissederken araç kullanma.';
+
+  String get health_flagSleepContinuityTitle =>
+      'Uykuya dalma ve uykuyu sürdürme';
+
+  String get health_flagSleepContinuity =>
+      'Uykuya dalmakta ya da gece yeniden uyumakta sık zorlanıyorsun. Bu uzun süredir devam ediyorsa üzerinde durmaya değer.';
+
+  String get health_flagLegsTitle => 'Bacaklarda huzursuzluk';
+
+  String get health_flagLegs =>
+      'Akşamları bacaklarda huzursuzluk hissi uykuya geçişi zorlaştırabilir.';
+
+  String get health_checkConsult => 'Bir uzmana danışmayı düşün.';
+
+  String get health_checkClearTitle => 'Belirgin bir işaret yok';
+
+  String get health_checkClear =>
+      'Cevaplarında dikkat çeken bir işaret görünmüyor. Uykunda bir değişiklik fark edersen kontrolü yeniden yapabilirsin.';
+
+  String get health_checkNote =>
+      'Bu bir tanı değildir. Sonuç yalnızca cevaplarına dayanır; uykunla ilgili bir endişen varsa bir sağlık uzmanıyla konuş.';
+
+  // Rüya
+
+  String get dreams_title => 'Rüya günlüğü';
+
+  String get dreams_eyebrow => 'Rüyaların';
+
+  String get dreams_settingsRow => 'Rüya günlüğü';
+
+  String get dreams_kindTitle => 'Rüya türü';
+
+  String get dreams_kindGroup => 'Rüya türü, tek seçim';
+
+  String get dreams_kindNormal => 'Normal';
+
+  String get dreams_kindLucid => 'Berrak';
+
+  String get dreams_kindNightmare => 'Kabus';
+
+  String get dreams_kindRecurring => 'Tekrarlayan';
+
+  String get dreams_emotionTitle => 'Rüyada ne hissettin?';
+
+  String get dreams_emotionGroup => 'Rüyadaki duygular, çoklu seçim';
+
+  String get dreams_emotionCalm => 'Sakin';
+
+  String get dreams_emotionJoy => 'Neşe';
+
+  String get dreams_emotionFear => 'Korku';
+
+  String get dreams_emotionSadness => 'Hüzün';
+
+  String get dreams_emotionAnger => 'Öfke';
+
+  String get dreams_emotionConfusion => 'Karmaşa';
+
+  String get dreams_readLink => 'Rüyanı yorumla';
+
+  String get dreams_searchHint => 'Notlarda ara';
+
+  String get dreams_searchLabel => 'Rüya notlarında ara';
+
+  String get dreams_clearSearch => 'Aramayı temizle';
+
+  String get dreams_filterLabel => 'Rüya türüne göre süz';
+
+  String get dreams_filterAll => 'Tümü';
+
+  String dreams_count(int count) => '$count rüya notu';
+
+  String get dreams_emptyTitle => 'Henüz rüya notu yok';
+
+  String get dreams_emptyBody =>
+      'Kaydet ekranında rüya notu yazdığın geceler burada, yeniden eskiye listelenir.';
+
+  String get dreams_emptyAction => 'Uykunu kaydet';
+
+  String get dreams_noResultsTitle => 'Sonuç yok';
+
+  String get dreams_noResultsBody =>
+      'Aramana ya da seçtiğin türe uyan bir rüya notu bulunamadı.';
+
+  String dreams_nightOf(String date) => '$date gecesi';
+
+  String get dreams_detailTitle => 'Rüyan';
+
+  String get dreams_noteTitle => 'Notun';
+
+  String get dreams_readingTitle => 'Yorum';
+
+  String get dreams_themeTitle => 'Genel tema';
+
+  String get dreams_noTheme =>
+      'Genel tema için Kaydet ekranında rüya türünü ya da duygunu ekleyebilirsin.';
+
+  String get dreams_noSymbols => 'Bu notta sözlükteki bir sembol bulamadık.';
+
+  String get dreams_readingLockTitle => 'Yorumun tamamı';
+
+  String dreams_readingLockBody(int more) => more > 0
+      ? '$more sembol daha ve genel tema Premium ile açılır.'
+      : 'Genel tema Premium ile açılır.';
+
+  String get dreams_suggestionTitle => 'Kabustan sonra';
+
+  String get dreams_disclaimer =>
+      'Rüya yorumları eğlence ve öz-yansıtma içindir; bilimsel veya tıbbi değildir.';
+
+  String get dreams_editNote => 'Notu düzenle';
+
+  String get dreams_missingTitle => 'Bu gece için rüya notu yok';
+
+  String get dreams_missingBody =>
+      'Not silinmiş ya da hiç yazılmamış olabilir. Kaydet ekranından ekleyebilirsin.';
+
+  String get dreams_openJournal => 'Rüya günlüğüne dön';
+
+  String get dreams_insightsTitle => 'Rüya içgörüleri';
+
+  String dreams_insightsSubtitle(int nights) => 'Son $nights gece';
+
+  String get dreams_insightsLockTitle => 'Rüyalarındaki örüntüleri gör';
+
+  String get dreams_insightsLockBody =>
+      'En sık sembollerin, kabus oranın ve kabus gecelerinde uykun Premium ile görünür.';
+
+  String get dreams_insightsEmpty =>
+      'Rüya notu, türü ya da duygusu girdiğin geceler arttıkça örüntüler burada görünür.';
+
+  String get dreams_topSymbols => 'En sık semboller';
+
+  String get dreams_topSymbolsEmpty =>
+      'Notlarında henüz sözlükteki bir sembol geçmedi.';
+
+  String dreams_symbolNights(int nights) => '$nights gece';
+
+  String get dreams_nightmareRate => 'Kabus oranı';
+
+  String dreams_percent(int percent) => '%$percent';
+
+  String dreams_nightmareRateValue(int nightmares, int kinded) =>
+      'Türünü girdiğin $kinded rüyanın $nightmares tanesi kabus';
+
+  String get dreams_nightmareSleep => 'Kabus gecelerinde uyku';
+
+  String dreams_nightmareLess(String duration) =>
+      'Kabus gecelerinde ortalama $duration daha az uyudun.';
+
+  String dreams_nightmareMore(String duration) =>
+      'Kabus gecelerinde ortalama $duration daha fazla uyudun.';
+
+  String get dreams_nightmareSame =>
+      'Kabus gecelerinde uyku süren pek değişmedi.';
+
+  String dreams_averages(String nightmare, String other) =>
+      'Kabus: $nightmare · diğer rüyalı geceler: $other';
+
+  String dreams_nightmareFactor(String factor, int nights) =>
+      'Kabus gecelerinde en sık etken: $factor ($nights gece)';
+
+  String dreams_needMore(int needed) =>
+      'Karşılaştırma için kabus ve diğer rüyalarda en az $needed gece gerekli';
+
+  String get dreams_insightsNote =>
+      'Karşılaştırmadır, neden-sonuç göstermez. Sembol sayımı nottaki kelimelere dayanır.';
+
+  // Rüya yorumu (sorulu)
+
+  String get dreamsInterview_cardTitle => 'Rüyanı yorumla';
+
+  String get dreamsInterview_cardBody =>
+      'Rüyanı yaz, birkaç kısa soruyu yanıtla; birlikte sakin bir yorum çıkaralım.';
+
+  String get dreamsInterview_cardCta => 'Başla';
+
+  String get dreamsInterview_detailCta => 'Sorularla yorumla';
+
+  String get dreamsInterview_eyebrow => 'Rüya yorumu';
+
+  String get dreamsInterview_title => 'Rüyanı yorumla';
+
+  String get dreamsInterview_resultTitle => 'Rüyanın yorumu';
+
+  String dreamsInterview_step(int step, int total) => 'Adım $step / $total';
+
+  String get dreamsInterview_noteTitle => 'Rüyanı anlat';
+
+  String get dreamsInterview_noteBody =>
+      'Aklında kalanları yaz; küçük ayrıntılar da işe yarar.';
+
+  String get dreamsInterview_noteHint => 'Rüyamda…';
+
+  String get dreamsInterview_noteLabel => 'Rüya notu';
+
+  String dreamsInterview_pickedFrom(String date) => '$date gecesinden';
+
+  String get dreamsInterview_pickClear => 'Kendi notumu yazacağım';
+
+  String get dreamsInterview_kindTitle => 'Rüya türü (isteğe bağlı)';
+
+  String get dreamsInterview_pickTitle => 'Günlükten seç';
+
+  String get dreamsInterview_pickBody =>
+      'Notu olan son gecelerden biriyle başla.';
+
+  String get dreamsInterview_next => 'İleri';
+
+  String get dreamsInterview_finish => 'Yorumu gör';
+
+  String get dreamsInterview_none => 'Hiçbiri';
+
+  String get dreamsInterview_q1Title => 'Rüyada en baskın duygu neydi?';
+
+  String get dreamsInterview_q1Body => 'Aklında en çok kalan hissi seç.';
+
+  String get dreamsInterview_q2Title => 'Uyandığında nasıl hissettin?';
+
+  String get dreamsInterview_q2Body =>
+      'Uyandıktan sonraki ilk birkaç dakikayı düşün.';
+
+  String get dreamsInterview_q3Title => 'Rüyada kontrol sende miydi?';
+
+  String get dreamsInterview_q3Body =>
+      'Olayların gidişatını yönlendirebiliyor muydun?';
+
+  String get dreamsInterview_q4Title => 'Rüyada tanıdık kişiler var mıydı?';
+
+  String get dreamsInterview_q4Body => 'Birden çok seçebilirsin.';
+
+  String get dreamsInterview_q5Title =>
+      'Bu aralar hayatında en çok ne yer kaplıyor?';
+
+  String get dreamsInterview_q5Body => 'Aklına ilk geleni seç.';
+
+  String get dreamsInterview_q6Title =>
+      'Bu rüya ya da benzeri tekrar ediyor mu?';
+
+  String get dreamsInterview_q6Body => 'Benzer bir rüyayı daha önce gördün mü?';
+
+  String get dreamsInterview_wakeRelieved => 'Rahatlamış';
+
+  String get dreamsInterview_wakeUneasy => 'Huzursuz';
+
+  String get dreamsInterview_wakeCurious => 'Meraklı';
+
+  String get dreamsInterview_wakeTired => 'Yorgun';
+
+  String get dreamsInterview_wakeNeutral => 'Nötr';
+
+  String get dreamsInterview_controlYes => 'Evet';
+
+  String get dreamsInterview_controlPartly => 'Kısmen';
+
+  String get dreamsInterview_controlNo => 'Hayır';
+
+  String get dreamsInterview_personFamily => 'Aile';
+
+  String get dreamsInterview_personFriend => 'Arkadaş';
+
+  String get dreamsInterview_personEx => 'Eski bir ilişki';
+
+  String get dreamsInterview_personWork => 'İş ya da okuldan biri';
+
+  String get dreamsInterview_personStranger => 'Yabancılar';
+
+  String get dreamsInterview_lifeWork => 'İş ya da okul';
+
+  String get dreamsInterview_lifeRelationships => 'İlişkiler';
+
+  String get dreamsInterview_lifeHealth => 'Sağlık';
+
+  String get dreamsInterview_lifeChange => 'Değişim ya da karar';
+
+  String get dreamsInterview_lifeLoneliness => 'Yalnızlık';
+
+  String get dreamsInterview_lifePeace => 'Huzur arayışı';
+
+  String get dreamsInterview_recurFirst => 'İlk kez';
+
+  String get dreamsInterview_recurSometimes => 'Bazen';
+
+  String get dreamsInterview_recurOften => 'Sık sık';
+
+  String get dreamsInterview_sectionTheme => 'Genel tema';
+
+  String get dreamsInterview_sectionLife => 'Duygu ve yaşam bağlantısı';
+
+  String get dreamsInterview_sectionReflect => 'Kendine sorabileceklerin';
+
+  String get dreamsInterview_sectionSuggestion => 'Küçük bir öneri';
+
+  String get dreamsInterview_sectionSymbols => 'Semboller ve cevapların';
+
+  String get dreamsInterview_sectionSleep => 'Uykunla ilişkisi';
+
+  String get dreamsInterview_symbolsLockTitle => 'Semboller ve cevapların';
+
+  String get dreamsInterview_symbolsLockBody =>
+      'Her sembolün yorumu ve cevaplarına göre bağlamı Premium ile açılır.';
+
+  String get dreamsInterview_sleepLockTitle => 'Uykunla ilişkisi';
+
+  String get dreamsInterview_sleepLockBody =>
+      'Rüyalı gecelerinin uykuna nasıl yansıdığı Premium ile görünür.';
+
+  String dreamsInterview_sleepAverage(int nights, String duration) =>
+      'Rüya not ettiğin $nights gecede ortalama $duration uyudun.';
+
+  String dreamsInterview_sleepNeedMore(int needed) =>
+      'Uykunla bağlantı kurmak için en az $needed rüyalı gece gerekli. Rüyalarını not ettikçe burada görünür.';
+
+  String get dreamsInterview_openBreathe => '4-7-8 nefesi aç';
+
+  String get dreamsInterview_openRoutine => 'Akşam rutinini aç';
+
+  String get dreamsInterview_saveNight => 'Geceye kaydet';
+
+  String get dreamsInterview_saveYesterday => 'Dün geceye kaydet';
+
+  String get dreamsInterview_saved => 'Kaydedildi';
+
+  String get dreamsInterview_noEntry =>
+      'Dün gece için uyku kaydı yok. Rüya notun Kaydet ekranına taşındı; uykunu kaydettiğinde not alanında hazır olacak.';
+
+  String get dreamsInterview_noEntryAction => 'Uykunu kaydet';
+
+  String get dreamsInterview_restart => 'Yeni bir rüya yorumla';
 }

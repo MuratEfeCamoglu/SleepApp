@@ -35,6 +35,20 @@ abstract final class AppMotion {
   /// Trend grafiğinde aralık değişince çubukların akması.
   static const chartMorph = Duration(milliseconds: 380);
 
+  /// Hafif ölçekli giriş (ör. "Genel tema" kartı, boş durum ikonu):
+  /// [entrance] süresinde bu ölçekten 1'e.
+  static const double popScale = 0.94;
+
+  /// Sürekli, çok yavaş "nefes alan" süs hareketi (Rüya kartı ikonu): bir
+  /// tam döngü; ölçek 1 ↔ [ambientScale]. Hareket azaltmada durağan,
+  /// `TickerMode` kapalıyken (ekran dışı sekme/rota) durur.
+  static const ambient = Duration(milliseconds: 4000);
+  static const double ambientScale = 1.04;
+
+  /// Verilen süre; hareket azaltma açıksa sıfır.
+  static Duration of(BuildContext context, Duration duration) =>
+      reduced(context) ? Duration.zero : duration;
+
   /// Hareket azaltma açıksa animasyonlar son değere atlar.
   static bool reduced(BuildContext context) =>
       MediaQuery.maybeDisableAnimationsOf(context) ?? false;

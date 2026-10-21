@@ -4,17 +4,23 @@ import 'package:uyku/core/theme/app_motion.dart';
 /// İlk kurulduğunda bir kez solup [AppMotion.entranceOffset] yükselerek
 /// belirir. [index] sıralı gecikmeyi belirler; [AppMotion.entranceMaxStagger]
 /// sonrası aynı anda gelir. [animate] false ise doğrudan görünür.
+/// [offset] 0 ise yalnız solar; [scaleFrom] verilirse ayrıca bu ölçekten
+/// 1'e büyür (ör. [AppMotion.popScale]).
 class Entrance extends StatefulWidget {
   const Entrance({
     required this.child,
     this.index = 0,
     this.animate = true,
+    this.offset = AppMotion.entranceOffset,
+    this.scaleFrom,
     super.key,
   });
 
   final Widget child;
   final int index;
   final bool animate;
+  final double offset;
+  final double? scaleFrom;
 
   @override
   State<Entrance> createState() => _EntranceState();
@@ -62,15 +68,24 @@ class _EntranceState extends State<Entrance>
 
   @override
   Widget build(BuildContext context) {
+    final scaleFrom = widget.scaleFrom;
     return AnimatedBuilder(
       animation: _curve,
-      builder: (context, child) => Opacity(
-        opacity: _curve.value,
-        child: Transform.translate(
-          offset: Offset(0, AppMotion.entranceOffset * (1 - _curve.value)),
+      builder: (context, child) {
+        final t = _curve.value;
+        // Ağaç yapısı sabit kalır; çocuğun durumu animasyon bitince korunur.
+        Widget moved = Transform.translate(
+          offset: Offset(0, widget.offset * (1 - t)),
           child: child,
-        ),
-      ),
+        );
+        if (scaleFrom != null) {
+          moved = Transform.scale(
+            scale: scaleFrom + (1 - scaleFrom) * t,
+            child: moved,
+          );
+        }
+        return Opacity(opacity: t, child: moved);
+      },
       child: widget.child,
     );
   }

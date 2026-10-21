@@ -6,6 +6,7 @@ import 'package:uyku/core/theme/app_sizes.dart';
 import 'package:uyku/core/theme/app_spacing.dart';
 import 'package:uyku/core/theme/app_theme.dart';
 import 'package:uyku/core/widgets/app_icon.dart';
+import 'package:uyku/core/widgets/entrance.dart';
 import 'package:uyku/core/widgets/pressable.dart';
 import 'package:uyku/core/widgets/primary_pill_button.dart';
 
@@ -97,18 +98,23 @@ class EmptyState extends StatelessWidget {
     return Column(
       children: [
         top ??
-            Container(
-              width: AppSizes.emptyIconCircle,
-              height: AppSizes.emptyIconCircle,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: colors.honeyTint,
-                shape: BoxShape.circle,
-              ),
-              child: AppIcon(
-                icon,
-                color: colors.honeyText,
-                size: AppSizes.emptyIcon,
+            // İkon dairesi hafif ölçek + solma ile gelir.
+            Entrance(
+              offset: 0,
+              scaleFrom: AppMotion.popScale,
+              child: Container(
+                width: AppSizes.emptyIconCircle,
+                height: AppSizes.emptyIconCircle,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: colors.honeyTint,
+                  shape: BoxShape.circle,
+                ),
+                child: AppIcon(
+                  icon,
+                  color: colors.honeyText,
+                  size: AppSizes.emptyIcon,
+                ),
               ),
             ),
         const SizedBox(height: AppSpacing.xl),

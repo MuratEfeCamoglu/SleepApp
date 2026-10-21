@@ -18,6 +18,7 @@ import 'package:uyku/core/widgets/screen_header.dart';
 import 'package:uyku/core/widgets/sleep_ring_chart.dart';
 import 'package:uyku/core/widgets/stage_metric_tile.dart';
 import 'package:uyku/core/widgets/state_views.dart';
+import 'package:uyku/features/health/presentation/health_ui.dart';
 import 'package:uyku/features/settings/presentation/settings_controller.dart';
 import 'package:uyku/features/sleep_log/presentation/sleep_log_providers.dart';
 import 'package:uyku/features/sleep_summary/domain/today_summary.dart';
@@ -90,6 +91,7 @@ class TodayScreen extends ConsumerWidget {
                     ),
                   ),
                 const StreakCard(),
+                const HealthSummaryCard(),
                 _TipCard(summary: s),
               ],
             ),
@@ -287,7 +289,7 @@ class _TipCard extends ConsumerWidget {
                 ),
                 LinkButton(
                   label: strings.today_openRoutine,
-                  onPressed: () => context.go(AppRoutes.routine),
+                  onPressed: () => context.push(AppRoutes.routine),
                 ),
               ],
             ),

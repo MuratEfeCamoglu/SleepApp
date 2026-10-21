@@ -48,6 +48,10 @@ const _flamePath =
     'M12 21a6 6 0 0 0 6-6c0-4-3-6-4-9-1 2-2 3-3.5 3.5'
     'C9 10 6 12 6 15a6 6 0 0 0 6 6z';
 
+const _dreamCloud =
+    'M7 20a4.5 4.5 0 0 1-.4-8.98 5.5 5.5 0 0 1 10.6 1.48'
+    'A3.75 3.75 0 0 1 16.5 20z';
+
 abstract final class AppIcons {
   static const settings = AppIconData([
     'M12 8.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 1 0 0-7z',
@@ -148,6 +152,12 @@ abstract final class AppIcons {
   ]);
   static const flame = AppIconData([_flamePath]);
   static const pen = AppIconData(['M4 20h4L19 9l-4-4L4 16z', 'M13.5 6.5l4 4']);
+
+  /// Rüya sekmesi: bulut + iki küçük yıldız.
+  static const dream = AppIconData(
+    [_dreamCloud],
+    filledDots: [(19.5, 4.5, 1.4), (22, 8.5, 0.9)],
+  );
   static const lock = AppIconData([
     'M7 11V8a5 5 0 0 1 10 0v3',
     'M5 11h14v10H5z',

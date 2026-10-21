@@ -34,7 +34,9 @@ class PrimaryPillButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final colors = context.colors;
     final fg = foreground ?? colors.onEspresso;
-    return Opacity(
+    // Etkinleşince/pasifleşince opaklık yumuşakça geçer (swap).
+    return AnimatedOpacity(
+      duration: AppMotion.of(context, AppMotion.swap),
       opacity: onPressed == null ? 0.4 : 1,
       child: Pressable(
         onPressed: onPressed,

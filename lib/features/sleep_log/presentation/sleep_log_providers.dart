@@ -30,6 +30,12 @@ class SleepLog extends AsyncNotifier<List<SleepEntry>> {
     state = AsyncData(await _repo.fetchAll());
   }
 
+  /// Toplu kayıt (ör. örnek veri); aynı gecelerin üzerine yazar.
+  Future<void> saveAll(List<SleepEntry> entries) async {
+    await _repo.saveAll(entries);
+    state = AsyncData(await _repo.fetchAll());
+  }
+
   Future<void> delete(String id) async {
     await _repo.delete(id);
     state = AsyncData(await _repo.fetchAll());

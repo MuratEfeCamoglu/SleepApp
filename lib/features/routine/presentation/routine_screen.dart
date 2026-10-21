@@ -13,13 +13,13 @@ import 'package:uyku/core/theme/sleep_stage_colors.dart';
 import 'package:uyku/core/utils/formatters.dart';
 import 'package:uyku/core/widgets/app_icon.dart';
 import 'package:uyku/core/widgets/app_switch.dart';
+import 'package:uyku/core/widgets/full_page.dart';
 import 'package:uyku/core/widgets/pressable.dart';
 import 'package:uyku/core/widgets/screen_header.dart';
 import 'package:uyku/core/widgets/state_views.dart';
 import 'package:uyku/features/routine/domain/routine_repository.dart';
 import 'package:uyku/features/routine/presentation/routine_providers.dart';
 import 'package:uyku/features/settings/presentation/settings_controller.dart';
-import 'package:uyku/features/sleep_summary/presentation/app_shell.dart';
 
 class RoutineScreen extends ConsumerWidget {
   const RoutineScreen({super.key});
@@ -47,15 +47,14 @@ class RoutineScreen extends ConsumerWidget {
       (strings.routine_step5Title, strings.routine_step5Note),
     ];
 
-    return TabPage(
+    // Tam ekran (`/routine`): Bugün'deki öneri kartından ve Ayarlar'dan açılır.
+    return FullPage(
+      eyebrow: strings.routine_eyebrow(
+        formatClock(settings.bedtimeFor(evening)),
+        formatGoal(strings, locale, settings.goalMinutes),
+      ),
+      title: strings.routine_title,
       children: [
-        ScreenHeader(
-          eyebrow: strings.routine_eyebrow(
-            formatClock(settings.bedtimeFor(evening)),
-            formatGoal(strings, locale, settings.goalMinutes),
-          ),
-          title: strings.routine_title,
-        ),
         _ReminderCard(enabled: settings.reminderEnabled, minute: reminder),
         _Progress(done: done.length),
         Column(

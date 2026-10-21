@@ -24,6 +24,8 @@ dependencies:
   timezone: ^0.11.1
 
 dev_dependencies:
+  flutter_test:
+    sdk: flutter
   very_good_analysis: ^11.0.0
 
 # path_provider_android 2.3+ jni'ye geçti ve NDK 28.2 indirtiyor; 2.2.x NDK'sız.

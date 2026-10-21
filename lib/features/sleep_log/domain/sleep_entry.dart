@@ -1,4 +1,7 @@
 import 'package:flutter/foundation.dart';
+import 'package:uyku/features/sleep_log/domain/dream_tags.dart';
+
+export 'package:uyku/features/sleep_log/domain/dream_tags.dart';
 
 /// Uyanış hissi — Kaydet ekranındaki 5 chip, kötüden iyiye.
 enum WakeMood { exhausted, tired, normal, refreshed, great }
@@ -28,6 +31,8 @@ class SleepEntry {
     this.mood = WakeMood.normal,
     this.factors = const <SleepFactor>[],
     this.note = '',
+    this.dreamKind,
+    this.dreamEmotions = const <DreamEmotion>[],
   });
 
   factory SleepEntry.fromJson(Map<String, dynamic> json) => SleepEntry(
@@ -35,12 +40,17 @@ class SleepEntry {
     bedtime: DateTime.parse(json['bedtime'] as String),
     wake: DateTime.parse(json['wake'] as String),
     mood: WakeMood.values.asNameMap()[json['mood']] ?? WakeMood.normal,
-    factors:
-        (json['factors'] as List<dynamic>?)
-            ?.map((e) => SleepFactor.values.byName(e as String))
-            .toList() ??
-        const <SleepFactor>[],
+    // Bilinmeyen değerler (ör. ileri sürümden gelen) sessizce atlanır.
+    factors: [
+      for (final e in json['factors'] as List<dynamic>? ?? const [])
+        ?SleepFactor.values.asNameMap()[e],
+    ],
     note: json['note'] as String? ?? '',
+    dreamKind: DreamKind.values.asNameMap()[json['dreamKind']],
+    dreamEmotions: [
+      for (final e in json['dreamEmotions'] as List<dynamic>? ?? const [])
+        ?DreamEmotion.values.asNameMap()[e],
+    ],
   );
 
   /// Kayıt, yatış ve uyanıştan geceyi hesaplayarak oluşturulur.
@@ -66,6 +76,12 @@ class SleepEntry {
   /// Rüya günlüğü: sabah yazılan serbest not; boş olabilir.
   final String note;
 
+  /// Rüya türü; seçilmediyse null.
+  final DreamKind? dreamKind;
+
+  /// Rüyada hissedilen duygular (enum sırasıyla); boş olabilir.
+  final List<DreamEmotion> dreamEmotions;
+
   Map<String, dynamic> toJson() => <String, dynamic>{
     'id': id,
     'bedtime': bedtime.toIso8601String(),
@@ -73,8 +89,14 @@ class SleepEntry {
     'mood': mood.name,
     'factors': factors.map((e) => e.name).toList(),
     if (note.isNotEmpty) 'note': note,
+    if (dreamKind != null) 'dreamKind': dreamKind!.name,
+    if (dreamEmotions.isNotEmpty)
+      'dreamEmotions': dreamEmotions.map((e) => e.name).toList(),
   };
 
+  static const _unset = Object();
+
+  /// [dreamKind] için `null` vermek alanı temizler; vermemek korur.
   SleepEntry copyWith({
     String? id,
     DateTime? bedtime,
@@ -82,6 +104,8 @@ class SleepEntry {
     WakeMood? mood,
     List<SleepFactor>? factors,
     String? note,
+    Object? dreamKind = _unset,
+    List<DreamEmotion>? dreamEmotions,
   }) => SleepEntry(
     id: id ?? this.id,
     bedtime: bedtime ?? this.bedtime,
@@ -89,6 +113,10 @@ class SleepEntry {
     mood: mood ?? this.mood,
     factors: factors ?? this.factors,
     note: note ?? this.note,
+    dreamKind: identical(dreamKind, _unset)
+        ? this.dreamKind
+        : dreamKind as DreamKind?,
+    dreamEmotions: dreamEmotions ?? this.dreamEmotions,
   );
 
   @override
@@ -100,16 +128,27 @@ class SleepEntry {
           other.wake == wake &&
           other.mood == mood &&
           listEquals(other.factors, factors) &&
-          other.note == note;
+          other.note == note &&
+          other.dreamKind == dreamKind &&
+          listEquals(other.dreamEmotions, dreamEmotions);
 
   @override
-  int get hashCode =>
-      Object.hash(id, bedtime, wake, mood, Object.hashAll(factors), note);
+  int get hashCode => Object.hash(
+    id,
+    bedtime,
+    wake,
+    mood,
+    Object.hashAll(factors),
+    note,
+    dreamKind,
+    Object.hashAll(dreamEmotions),
+  );
 
   @override
   String toString() =>
       'SleepEntry(id: $id, bedtime: $bedtime, wake: $wake, mood: $mood, '
-      'factors: $factors, note: $note)';
+      'factors: $factors, note: $note, dreamKind: $dreamKind, '
+      'dreamEmotions: $dreamEmotions)';
 
   int get durationMinutes => wake.difference(bedtime).inMinutes;
 

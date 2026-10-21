@@ -4,7 +4,13 @@ import 'package:go_router/go_router.dart';
 import 'package:uyku/core/router/transitions.dart';
 import 'package:uyku/debug/component_gallery_screen.dart';
 import 'package:uyku/features/chronotype/presentation/chronotype_screen.dart';
+import 'package:uyku/features/dreams/presentation/dream_detail_screen.dart';
+import 'package:uyku/features/dreams/presentation/dream_interpret_screen.dart';
+import 'package:uyku/features/dreams/presentation/dreams_screen.dart';
+import 'package:uyku/features/health/presentation/health_check_screen.dart';
+import 'package:uyku/features/health/presentation/health_screen.dart';
 import 'package:uyku/features/onboarding/presentation/onboarding_screen.dart';
+import 'package:uyku/features/premium/presentation/premium_screen.dart';
 import 'package:uyku/features/routine/presentation/routine_screen.dart';
 import 'package:uyku/features/settings/presentation/goals_screen.dart';
 import 'package:uyku/features/settings/presentation/settings_controller.dart';
@@ -36,6 +42,11 @@ abstract final class AppRoutes {
   static const breathe = '/breathe';
   static const badges = '/badges';
   static const goals = '/goals';
+  static const premium = '/premium';
+  static const health = '/health';
+  static const healthCheck = '/health/check';
+  static const dreams = '/dreams';
+  static const dreamInterpret = '/dreams/interpret';
 
   /// Kurulum bitmeden açılabilen rotalar.
   static const Set<String> beforeOnboarding = {onboarding, chronotype};
@@ -45,6 +56,13 @@ abstract final class AppRoutes {
 
   /// `/log?night=2026-09-24`
   static String logNight(String nightKey) => '$log?night=$nightKey';
+
+  /// `/dreams/2026-09-24`
+  static String dreamNight(String nightKey) => '$dreams/$nightKey';
+
+  /// `/dreams/interpret?night=2026-09-24`
+  static String dreamInterpretNight(String nightKey) =>
+      '$dreamInterpret?night=$nightKey';
 }
 
 final appRouterProvider = Provider<GoRouter>((ref) {
@@ -118,8 +136,8 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: AppRoutes.routine,
-                builder: (context, state) => const RoutineScreen(),
+                path: AppRoutes.dreams,
+                builder: (context, state) => const DreamsScreen(),
               ),
             ],
           ),
@@ -169,6 +187,43 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         path: AppRoutes.goals,
         pageBuilder: (context, state) =>
             fadeSlidePage(state: state, child: const GoalsScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.premium,
+        pageBuilder: (context, state) =>
+            fadeSlidePage(state: state, child: const PremiumScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.health,
+        pageBuilder: (context, state) =>
+            fadeSlidePage(state: state, child: const HealthScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.healthCheck,
+        pageBuilder: (context, state) =>
+            fadeSlidePage(state: state, child: const HealthCheckScreen()),
+      ),
+      GoRoute(
+        path: AppRoutes.routine,
+        pageBuilder: (context, state) =>
+            fadeSlidePage(state: state, child: const RoutineScreen()),
+      ),
+      // `/dreams/:night`'tan önce durmalı; yoksa "interpret" gece sanılır.
+      GoRoute(
+        path: AppRoutes.dreamInterpret,
+        pageBuilder: (context, state) => fadeSlidePage(
+          state: state,
+          child: DreamInterpretScreen(
+            night: state.uri.queryParameters['night'],
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '${AppRoutes.dreams}/:night',
+        pageBuilder: (context, state) => fadeSlidePage(
+          state: state,
+          child: DreamDetailScreen(night: state.pathParameters['night']!),
+        ),
       ),
       GoRoute(
         path: AppRoutes.gallery,

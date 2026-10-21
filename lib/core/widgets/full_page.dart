@@ -11,12 +11,15 @@ import 'package:uyku/core/theme/app_spacing.dart';
 import 'package:uyku/core/theme/app_theme.dart';
 import 'package:uyku/core/widgets/app_icon.dart';
 import 'package:uyku/core/widgets/circle_icon_button.dart';
+import 'package:uyku/core/widgets/entrance.dart';
 import 'package:uyku/core/widgets/pressable.dart';
 import 'package:uyku/core/widgets/screen_header.dart';
 
 /// Sekme dışı tam ekran sayfa: geri butonlu başlık + kaydırılabilir içerik,
-/// isteğe bağlı altta sabit eylem (thumb-zone CTA).
-class FullPage extends StatelessWidget {
+/// isteğe bağlı altta sabit eylem (thumb-zone CTA). İlk açılışta öğeler
+/// sekme sayfalarındaki gibi sırayla belirir ([Entrance]); sonradan
+/// kaydırılarak gelenler animasyonsuz görünür.
+class FullPage extends StatefulWidget {
   const FullPage({
     required this.eyebrow,
     required this.title,
@@ -44,7 +47,18 @@ class FullPage extends StatelessWidget {
       context.canPop() ? context.pop() : context.go(AppRoutes.today);
 
   @override
+  State<FullPage> createState() => _FullPageState();
+}
+
+class _FullPageState extends State<FullPage> {
+  final _shown = Stopwatch()..start();
+
+  bool get _entering =>
+      _shown.elapsed < AppMotion.entrance + AppMotion.entrance;
+
+  @override
   Widget build(BuildContext context) {
+    final bottom = widget.bottom;
     final strings = AppStrings.of(context);
     final padding = MediaQuery.paddingOf(context);
     return Scaffold(
@@ -58,13 +72,13 @@ class FullPage extends StatelessWidget {
             leading: CircleIconButton(
               icon: AppIcons.back,
               semanticLabel: strings.common_back,
-              onPressed: onBack ?? () => back(context),
+              onPressed: widget.onBack ?? () => FullPage.back(context),
             ),
-            eyebrow: eyebrow,
-            title: title,
-            trailing: trailing,
+            eyebrow: widget.eyebrow,
+            title: widget.title,
+            trailing: widget.trailing,
           );
-          final items = [header, ...children];
+          final items = [header, ...widget.children];
           return Column(
             children: [
               Expanded(
@@ -78,8 +92,9 @@ class FullPage extends StatelessWidget {
                         : AppSpacing.xl,
                   ),
                   itemCount: items.length,
-                  separatorBuilder: (_, _) => SizedBox(height: gap),
-                  itemBuilder: (_, i) => items[i],
+                  separatorBuilder: (_, _) => SizedBox(height: widget.gap),
+                  itemBuilder: (_, i) =>
+                      Entrance(index: i, animate: _entering, child: items[i]),
                 ),
               ),
               if (bottom != null)

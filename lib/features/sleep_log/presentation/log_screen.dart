@@ -17,6 +17,8 @@ import 'package:uyku/core/widgets/circle_icon_button.dart';
 import 'package:uyku/core/widgets/primary_pill_button.dart';
 import 'package:uyku/core/widgets/screen_header.dart';
 import 'package:uyku/core/widgets/state_views.dart';
+import 'package:uyku/features/dreams/domain/dream_journal.dart';
+import 'package:uyku/features/dreams/presentation/dream_ui.dart';
 import 'package:uyku/features/sleep_log/domain/sleep_entry.dart';
 import 'package:uyku/features/sleep_log/presentation/log_editor.dart';
 import 'package:uyku/features/sleep_log/presentation/sleep_log_providers.dart';
@@ -110,14 +112,28 @@ class _LogScreenState extends ConsumerState<LogScreen> {
         if (draft == null) {
           return TabPage(children: [header, const _StartCard()]);
         }
-        final saved = draft.matches(list.forNight(draft.night));
+        final stored = list.forNight(draft.night);
+        final saved = draft.matches(stored);
         return TabPage(
           children: [
             header,
             _TimesCard(draft: draft),
             _Moods(draft: draft),
             _Factors(draft: draft),
-            _DreamNote(key: ValueKey(draft.entry.id), initial: draft.note),
+            // Bekleyen rüya taslağı gelince/temizlenince alan yeniden dolar.
+            _DreamNote(
+              key: ValueKey((
+                draft.entry.id,
+                ref.watch(pendingDreamDraftProvider),
+              )),
+              initial: draft.note,
+            ),
+            _DreamDetails(
+              draft: draft,
+              readNight: stored != null && stored.hasDreamNote
+                  ? stored.id
+                  : null,
+            ),
             Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
@@ -156,6 +172,7 @@ class _StartCard extends ConsumerWidget {
     final strings = AppStrings.of(context);
     final colors = context.colors;
     final text = context.text;
+    final pending = ref.watch(pendingDreamDraftProvider) != null;
     return SurfaceCard(
       radius: AppRadius.lgPlusAll,
       padding: const EdgeInsets.all(AppSpacing.xl),
@@ -190,6 +207,14 @@ class _StartCard extends ConsumerWidget {
             textAlign: TextAlign.center,
             style: text.bodyMedium.copyWith(color: colors.textSecondary),
           ),
+          if (pending) ...[
+            const SizedBox(height: AppSpacing.md),
+            Text(
+              strings.log_pendingDream,
+              textAlign: TextAlign.center,
+              style: text.caption.copyWith(color: colors.textSecondary),
+            ),
+          ],
           const SizedBox(height: AppSpacing.xl),
           PrimaryPillButton(
             label: strings.log_startSleepMode,
@@ -428,6 +453,88 @@ class _DreamNoteState extends ConsumerState<_DreamNote> {
             onChanged: (v) => ref.read(logEditorProvider.notifier).setNote(v),
           ),
         ),
+      ],
+    );
+  }
+}
+
+/// Rüya türü (tek seçim, tekrar dokununca kalkar), duygular (çoklu) ve
+/// kaydedilmiş not varsa "Rüyanı yorumla" bağlantısı.
+class _DreamDetails extends ConsumerWidget {
+  const _DreamDetails({required this.draft, required this.readNight});
+
+  final LogDraft draft;
+
+  /// Kaydedilmiş rüya notu olan gece; yoksa bağlantı gösterilmez.
+  final String? readNight;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppStrings.of(context);
+    final text = context.text;
+    final editor = ref.read(logEditorProvider.notifier);
+    final night = readNight;
+
+    Widget group({
+      required String title,
+      required String semantics,
+      required List<Widget> pills,
+    }) => Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Semantics(header: true, child: Text(title, style: text.cardTitle)),
+        const SizedBox(height: AppSpacing.smPlus),
+        Semantics(
+          container: true,
+          label: semantics,
+          explicitChildNodes: true,
+          child: Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.sm,
+            children: pills,
+          ),
+        ),
+      ],
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        group(
+          title: strings.dreams_kindTitle,
+          semantics: strings.dreams_kindGroup,
+          pills: [
+            for (final k in DreamKind.values)
+              ChoicePill(
+                label: k.label(strings),
+                selected: draft.dreamKind == k,
+                onPressed: () => editor.toggleDreamKind(k),
+              ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lgPlus),
+        group(
+          title: strings.dreams_emotionTitle,
+          semantics: strings.dreams_emotionGroup,
+          pills: [
+            for (final e in DreamEmotion.values)
+              ChoicePill(
+                label: e.label(strings),
+                selected: draft.dreamEmotions.contains(e),
+                onPressed: () => editor.toggleDreamEmotion(e),
+              ),
+          ],
+        ),
+        if (night != null) ...[
+          const SizedBox(height: AppSpacing.xs),
+          Align(
+            alignment: Alignment.centerLeft,
+            child: LinkButton(
+              label: strings.dreams_readLink,
+              onPressed: () => context.push(AppRoutes.dreamNight(night)),
+            ),
+          ),
+        ],
       ],
     );
   }

@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:uyku/core/router/app_router.dart';
@@ -19,7 +20,10 @@ import 'package:uyku/core/widgets/screen_header.dart';
 import 'package:uyku/core/widgets/segmented_pill.dart';
 import 'package:uyku/core/widgets/settings_group.dart';
 import 'package:uyku/features/chronotype/presentation/chronotype_screen.dart';
+import 'package:uyku/features/premium/presentation/premium_providers.dart';
 import 'package:uyku/features/routine/presentation/routine_providers.dart';
+import 'package:uyku/features/settings/domain/csv_export.dart';
+import 'package:uyku/features/settings/domain/sample_data.dart';
 import 'package:uyku/features/settings/domain/user_settings.dart';
 import 'package:uyku/features/settings/presentation/goals_screen.dart';
 import 'package:uyku/features/settings/presentation/settings_controller.dart';
@@ -38,6 +42,8 @@ class SettingsScreen extends ConsumerWidget {
     final locale = Localizations.localeOf(context).toLanguageTag();
     final s = ref.watch(settingsControllerProvider);
     final controller = ref.read(settingsControllerProvider.notifier);
+    final premium = ref.watch(isPremiumProvider);
+    final entries = ref.watch(sleepLogProvider).value;
 
     String themeLabel(ThemePreference t) => switch (t) {
       ThemePreference.system => strings.settings_themeSystem,
@@ -64,6 +70,21 @@ class SettingsScreen extends ConsumerWidget {
             ),
             eyebrow: strings.appTitle,
             title: strings.settings_title,
+          ),
+          const SizedBox(height: AppSpacing.xl),
+          SettingsGroup(
+            title: strings.premium_settingsGroup,
+            children: [
+              SettingsRow(
+                icon: AppIcons.sparkle,
+                iconColor: SleepStageColors.honeyDeep,
+                label: strings.premium_settingsRow,
+                value: premium
+                    ? strings.premium_settingsActive
+                    : strings.premium_settingsInactive,
+                onPressed: () => context.push(AppRoutes.premium),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.xl),
           SettingsGroup(
@@ -113,6 +134,19 @@ class SettingsScreen extends ConsumerWidget {
                 label: strings.chrono_settingsRow,
                 value: s.chronotype?.label(strings) ?? strings.chrono_notTaken,
                 onPressed: () => context.push(AppRoutes.chronotype),
+              ),
+              SettingsRow(
+                icon: AppIcons.clock,
+                iconColor: SleepStageColors.honeyDeep,
+                label: strings.routine_title,
+                onPressed: () => context.push(AppRoutes.routine),
+              ),
+              SettingsRow(
+                icon: AppIcons.pen,
+                iconColor: SleepStageColors.sageDeep,
+                label: strings.dreams_settingsRow,
+                // Rüya artık bir sekme: kabuğa geçilir.
+                onPressed: () => context.go(AppRoutes.dreams),
               ),
             ],
           ),
@@ -164,6 +198,28 @@ class SettingsScreen extends ConsumerWidget {
             title: strings.settings_groupData,
             children: [
               SettingsRow(
+                icon: premium ? AppIcons.layers : AppIcons.lock,
+                iconColor: SleepStageColors.sageDeep,
+                label: strings.export_csvRow,
+                value: !premium
+                    ? strings.export_locked
+                    : (entries != null && entries.isEmpty)
+                    ? strings.export_empty
+                    : null,
+                onPressed: !premium
+                    ? () => context.push(AppRoutes.premium)
+                    : (entries == null || entries.isEmpty)
+                    ? null
+                    : () async {
+                        await Clipboard.setData(
+                          ClipboardData(text: entriesToCsv(entries)),
+                        );
+                        if (context.mounted) {
+                          showAppToast(context, strings.export_copied);
+                        }
+                      },
+              ),
+              SettingsRow(
                 icon: AppIcons.trash,
                 iconColor: SleepStageColors.emberDeep,
                 label: strings.settings_clear,
@@ -180,6 +236,29 @@ class SettingsScreen extends ConsumerWidget {
                   ref.invalidate(routineProgressProvider);
                 },
               ),
+              if (kDebugMode)
+                SettingsRow(
+                  icon: AppIcons.layers,
+                  iconColor: SleepStageColors.honeyDeep,
+                  label: strings.settings_sample,
+                  onPressed: () async {
+                    final ok = await confirmSheet(
+                      context,
+                      title: strings.settings_sampleTitle,
+                      body: strings.settings_sampleBody,
+                      confirmLabel: strings.settings_sampleConfirm,
+                    );
+                    if (!ok) return;
+                    await ref
+                        .read(sleepLogProvider.notifier)
+                        .saveAll(
+                          buildSampleEntries(ref.read(todayProvider), s),
+                        );
+                    if (context.mounted) {
+                      showAppToast(context, strings.settings_sampleDone);
+                    }
+                  },
+                ),
               if (kDebugMode)
                 SettingsRow(
                   icon: AppIcons.grid,

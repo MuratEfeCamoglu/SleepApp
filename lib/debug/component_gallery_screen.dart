@@ -13,6 +13,7 @@ import 'package:uyku/core/widgets/choice_pill.dart';
 import 'package:uyku/core/widgets/circle_icon_button.dart';
 import 'package:uyku/core/widgets/delta_badge.dart';
 import 'package:uyku/core/widgets/floating_center_action.dart';
+import 'package:uyku/core/widgets/full_page.dart';
 import 'package:uyku/core/widgets/legend_dot.dart';
 import 'package:uyku/core/widgets/primary_pill_button.dart';
 import 'package:uyku/core/widgets/screen_header.dart';
@@ -21,6 +22,8 @@ import 'package:uyku/core/widgets/sleep_quality_fan_chart.dart';
 import 'package:uyku/core/widgets/sleep_ring_chart.dart';
 import 'package:uyku/core/widgets/stage_metric_tile.dart';
 import 'package:uyku/core/widgets/state_views.dart';
+import 'package:uyku/features/health/presentation/health_ui.dart';
+import 'package:uyku/features/premium/presentation/premium_gate.dart';
 
 /// `/debug/gallery` — imza bileşenleri açık/koyu temada gösterir.
 /// Yalnızca geliştirici içindir; örnek değerler gerçek veri değildir.
@@ -100,8 +103,16 @@ class _ComponentGalleryScreenState extends State<ComponentGalleryScreen> {
   }
 }
 
-class GalleryRings extends StatelessWidget {
+class GalleryRings extends StatefulWidget {
   const GalleryRings({super.key});
+
+  @override
+  State<GalleryRings> createState() => _GalleryRingsState();
+}
+
+class _GalleryRingsState extends State<GalleryRings> {
+  /// Artınca halkalar yeniden kurulur: dolum ve sayan skor baştan oynar.
+  int _replay = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -166,6 +177,25 @@ class GalleryRings extends StatelessWidget {
             ),
           ],
         ),
+        const SizedBox(height: AppSpacing.xl),
+        // Uyku sağlığı skor halkası: bant başına bir örnek; skor halka
+        // dolumuyla aynı sürede 0'dan sayar.
+        Wrap(
+          key: ValueKey(_replay),
+          spacing: AppSpacing.lg,
+          runSpacing: AppSpacing.lg,
+          alignment: WrapAlignment.center,
+          children: const [
+            HealthScoreRing(score: 88, size: AppSizes.onboardingRing),
+            HealthScoreRing(score: 62, size: AppSizes.onboardingRing),
+            HealthScoreRing(score: 41, size: AppSizes.onboardingRing),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        OutlinePillButton(
+          label: strings.gallery_replay,
+          onPressed: () => setState(() => _replay++),
+        ),
       ],
     );
   }
@@ -181,6 +211,7 @@ class GalleryControls extends StatefulWidget {
 class _GalleryControlsState extends State<GalleryControls> {
   bool _switch = true;
   bool _chip = true;
+  int _option = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -253,6 +284,19 @@ class _GalleryControlsState extends State<GalleryControls> {
           ],
         ),
         const SizedBox(height: AppSpacing.lg),
+        // Seçim geçişi: zemin/kenar ve işaret `AppMotion.toggle` sürede akar.
+        for (final (i, label) in [
+          strings.dreams_emotionCalm,
+          strings.dreams_emotionJoy,
+        ].indexed) ...[
+          if (i > 0) const SizedBox(height: AppSpacing.sm),
+          OptionCard(
+            label: label,
+            selected: _option == i,
+            onPressed: () => setState(() => _option = i),
+          ),
+        ],
+        const SizedBox(height: AppSpacing.lg),
         SegmentedPill(
           semanticLabel: strings.trends_rangeLabel,
           labels: [
@@ -265,6 +309,33 @@ class _GalleryControlsState extends State<GalleryControls> {
         ),
         const SizedBox(height: AppSpacing.lg),
         const SkeletonBlock(height: 64),
+        const SizedBox(height: AppSpacing.lg),
+        // Premium kapalıyken örtülü, açıkken içerik görünür.
+        PremiumGate(
+          child: StageMetricTile(
+            label: strings.stage_rem,
+            value: '1:54',
+            unit: strings.unit_stage,
+            color: SleepStageColors.sage,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        PremiumGate(
+          preview: StageMetricTile(
+            label: strings.stage_deep,
+            value: '1:28',
+            unit: strings.unit_stage,
+            color: SleepStageColors.ember,
+          ),
+          child: StageMetricTile(
+            label: strings.stage_light,
+            value: '4:20',
+            unit: strings.unit_stage,
+            color: context.colors.espressoSoft,
+          ),
+        ),
+        const SizedBox(height: AppSpacing.lg),
+        const PremiumLockCard(),
       ],
     );
   }

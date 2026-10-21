@@ -61,4 +61,19 @@ abstract final class AppSizes {
   static const double sheetHandleWidth = 40;
   static const double sheetHandleHeight = 4;
   static const double maxContentWidth = 520;
+
+  /// Premium karşılaştırma tablosunda Ücretsiz/Premium kolon genişliği.
+  static const double compareColumn = 72;
+
+  /// Uyku sağlığı skor halkası.
+  static const double healthRing = 200;
+
+  /// Uyku sağlığı 30 gecelik skor grafiği yüksekliği ve çubuk genişliği.
+  static const double healthChart = 120;
+  static const double healthBar = 6;
+
+  /// Yükleniyor iskeleti yükseklikleri (kart / orta kart / liste satırı).
+  static const double skeletonCard = 160;
+  static const double skeletonMedium = 120;
+  static const double skeletonRow = 88;
 }
