@@ -17,7 +17,7 @@ Uyku süreni, tahmini uyku evrelerini ve kaliteni gösteren sakin, sıcak ve rek
   <img src="docs/screenshots/track.png" width="200" alt="Uyku modu" />
 </p>
 
-> Görsel ve video, uygulamanın web derlemesinden 390×844 pt çerçevede çekildi. Ekranlardaki kayıtlar yalnızca bu görseller için yüklenmiş **örnek verilerdir**.
+> Görsel ve video, uygulamanın web derlemesinden 390×844 pt çerçevede çekildi. Ekranlardaki kayıtlar yalnızca bu görseller için yüklenmiş **örnek verilerdir**. Görseller Premium dalgasından (Uyku sağlığı, Rüya sekmesi) **öncesine** aittir; alt paneldeki 5. sekme artık "Rüya"dır.
 
 ---
 
@@ -27,6 +27,7 @@ Uyku süreni, tahmini uyku evrelerini ve kaliteni gösteren sakin, sıcak ve rek
 - [Ekranlar](#ekranlar)
 - [Açık ve koyu tema](#açık-ve-koyu-tema)
 - [Özellikler ayrıntılı](#özellikler-ayrıntılı)
+- [Premium, Uyku sağlığı ve Rüya](#premium-uyku-sağlığı-ve-rüya)
 - [Teknolojiler](#teknolojiler)
 - [Mimari](#mimari)
 - [Tasarım sistemi](#tasarım-sistemi)
@@ -45,6 +46,9 @@ Uyku süreni, tahmini uyku evrelerini ve kaliteni gösteren sakin, sıcak ve rek
 - **Uyku kalitesi**: son 30 gecenin beş gruba dağılımı, dokunulabilir yelpaze grafikte.
 - **Uyku modu**: gece boyunca açık kalan koyu ekran, tahmini akıllı alarm penceresi ve basılı tutarak onaylanan "Uyandım".
 - **Akşam rutini**: hatırlatıcı, işaretlenebilir adımlar, uyku sesleri ve 4-7-8 nefes egzersizi.
+- **Uyku sağlığı**: 0–100 skor, 14 gecelik uyku borcu, düzenlilik (SRI) ve sosyal jetlag; ücretsiz 6 soruluk öz-kontrol (tanı koymaz).
+- **Rüya sekmesi**: rüya günlüğü (tür, duygu, arama), 77 sembollük Türkçe sözlükle yorum ve kişiye 6 soru sorup çıkarım yapan **sorulu rüya yorumu**.
+- **Premium**: ayrıntılı sağlık analizi ve öneriler, derin rüya yorumu ve içgörüleri, CSV dışa aktarma. Mağaza bağlantısı henüz yok (fiyat açıkça işaretli placeholder).
 - **Motivasyon**: seriler, 11 rozet ve haftalık rapor.
 - **Gizlilik**: hesap, sunucu ve analitik yok. Her şey cihazdaki `shared_preferences` içinde JSON olarak saklanır.
 
@@ -52,9 +56,9 @@ Uyku süreni, tahmini uyku evrelerini ve kaliteni gösteren sakin, sıcak ve rek
 
 ### Ana sekmeler
 
-Alt paneldeki beş sekme `StatefulShellRoute` ile durumunu korur. Ortadaki bal rengi buton Kaydet ekranını açar.
+Alt paneldeki beş sekme `StatefulShellRoute` ile durumunu korur: **Bugün · Trendler · Kaydet · Kalite · Rüya**. Ortadaki bal rengi buton Kaydet ekranını açar. Akşam rutini artık tam ekran bir sayfadır (`/routine`; Bugün'deki öneri kartından ve Ayarlar'dan açılır). Aşağıdaki görseller önceki sürüme aittir.
 
-| Bugün | Trendler | Kaydet | Kalite | Rutin |
+| Bugün | Trendler | Kaydet | Kalite | Rutin (artık tam ekran) |
 |:---:|:---:|:---:|:---:|:---:|
 | <img src="docs/screenshots/today.png" width="160" alt="Bugün" /> | <img src="docs/screenshots/trends.png" width="160" alt="Trendler" /> | <img src="docs/screenshots/log.png" width="160" alt="Kaydet" /> | <img src="docs/screenshots/quality.png" width="160" alt="Uyku kalitesi" /> | <img src="docs/screenshots/routine.png" width="160" alt="Akşam rutini" /> |
 | Halka grafiği, evre kutuları, seri kartı, gece önerisi | Evre grafiği, ortalamalar, etken analizi | Saatler, his, etkenler, rüya notu | 30 gecelik yelpaze ve gruplar | Hatırlatıcı, ilerleme, adımlar |
@@ -104,7 +108,7 @@ Tema sistem ayarını izler veya Ayarlar'dan elle seçilir. Koyu tema saf siyah 
 - Puan 0–100 arasıdır: süre / hedef oranı (60) + uyanma hissi (40) − olumsuz etkenler. Egzersiz küçük bir artı puan verir. 5 saatin altı "Uykusuz", bitkin uyanılan ya da alkol veya gürültü bulunan geceler "Bölünmüş" sayılır.
 - `SleepQualityFanChart`: 120° yelpaze. Dokunulan dilim 8 px dışa kayar ve ipucu gösterir. Hit test açı ve yarıçapla yapılır.
 
-### Akşam rutini (`/routine`)
+### Akşam rutini (`/routine`, tam ekran)
 - Yatma vakti hatırlatıcısı (yatıştan 30 dk önce yerel bildirim).
 - İlerleme çubuğu ve 5 işaretlenebilir adım. Adımlar akşama göre saklanır, son 60 akşam tutulur.
 - "Rahatlamana yardım" kartından Uyku sesleri ve 4-7-8 nefes açılır.
@@ -128,6 +132,43 @@ Tema sistem ayarını izler veya Ayarlar'dan elle seçilir. Koyu tema saf siyah 
 
 > **Evreler tahminidir.** Uygulama evreleri ölçmez; `StageEstimator` süreden 90 dakikalık döngü modeliyle deterministik olarak tahmin eder (derin uyku ilk döngülerde, REM son döngülerde ağır basar). Arayüz bunu açıkça belirtir; tıbbi ölçüm değildir.
 
+## Premium, Uyku sağlığı ve Rüya
+
+Bu bölümün kapsamı, formülleri ve kabul kriterleri [`ISKELET.md`](ISKELET.md), geliştirme raporu [`docs/RAPOR.md`](docs/RAPOR.md) içindedir.
+
+### Premium (`/premium`)
+- Entitlement cihazda tutulur (`PremiumRepository` → `LocalPremiumRepository`, anahtar `premium.v1`). Mağaza (RevenueCat / StoreKit / Play Billing) aynı arayüzle sonradan eklenecek.
+- Fiyat yerine **"Fiyat mağaza bağlanınca gösterilecek"** yazar; release derlemede satın alma butonu pasif "Yakında"dır. Debug derlemede "Premium'u dene (geliştirici)" kilidi açar.
+- Kilitli yüzeyler `PremiumGate` ile sarılır: içerik `surfaceMuted` örtüyle gizlenir, "Premium ile aç" butonu bu ekrana götürür.
+
+| Ücretsiz | Premium |
+|---|---|
+| Tüm mevcut takip özellikleri | Uyku sağlığı bileşen dökümü, 30 gecelik skor grafiği, öneriler |
+| Uyku sağlığı skoru, borç, düzenlilik, jetlag | Rüya yorumunun tamamı ve genel tema |
+| Uyku sağlığı kontrolü | Sorulu yorumda sembol × cevap bağlantıları ve uyku verisiyle ilişki |
+| Rüya günlüğü, ilk sembolün yorumu, sorulu yorum özeti | Rüya içgörüleri (sık semboller, kabus oranı) |
+| | CSV dışa aktarma |
+
+### Uyku sağlığı (`/health`, `/health/check`)
+- **Skor (0–100, son 14 gece, en az 3 kayıt)**: süre 40 + düzenlilik 25 + borç 20 + uyanış hissi 15. Bantlar: 85+ Çok iyi, 70–84 İyi, 50–69 Orta, <50 Geliştirilebilir.
+- **Uyku borcu**: gece başına `hedef − süre`; fazla uyku gece başına en çok 60 dk geri öder, borç 0'ın altına inmez.
+- **Düzenlilik (SRI)**: ardışık gecelerde aynı dakikada aynı durumda (uyku/uyanık) olma oranı, `200·p − 100`.
+- **Sosyal jetlag**: hafta sonu (cuma/cumartesi) ve hafta içi uyku orta noktaları farkı.
+- **Öz-kontrol**: kendi yazdığımız 6 soru (nefes düzeni, gün içi uyuklama, dalma güçlüğü, gece uyanma, sabah yorgunluğu, bacak huzursuzluğu). Sonuç yalnızca "bir uzmana danışmayı düşün" der; **tanı değildir**. Lisanslı ölçeklerin (Epworth, ISI, STOP-Bang, PSQI) metni kullanılmaz.
+
+### Rüya (`/dreams` sekmesi, `/dreams/:night`, `/dreams/interpret`)
+- Kaydet ekranında rüya notuna **tür** (normal, berrak, kabus, tekrarlayan) ve **duygu** eklenir.
+- Rüya sekmesi: "Rüyanı yorumla" kartı, içgörü kartı (premium) ve aranabilir/filtrelenebilir günlük.
+- **Sembol yorumu**: 77 sembollük cihaz içi Türkçe sözlük; Türkçe eklere duyarlı, yanlış eşleşmeye karşı istisnalı kelime başı eşleşme.
+- **Sorulu rüya yorumu**: rüyayı yaz veya günlükten seç → 6 soru (baskın duygu, uyanış hissi, kontrol, tanıdık kişiler, yaşam teması, tekrar) → genel tema, duygu-yaşam bağlantısı, kendine sorabileceklerin ve küçük bir öneri (ör. kabusta "sonunu yeniden yaz", huzursuz uyanışta 4-7-8 nefes). Çıkarım saf ve deterministik bir kural motorudur (`inferDream`), internet gerektirmez. "Kaydet" ile geceye bağlanır.
+- Her yorum ekranında: "Rüya yorumları eğlence ve öz-yansıtma içindir; bilimsel veya tıbbi değildir."
+
+### Dışa aktarma
+Ayarlar → Veri → **CSV olarak kopyala** (premium). Başlık: `gece,yatis,uyanis,sure_dk,uyanis_hissi,etkenler,ruya_turu,not`; RFC 4180 kaçırma, CRLF satır sonu.
+
+### Hareket
+Yeni ekranlar ana ekranlarla aynı hareket dilini kullanır: kademeli giriş, sayarak gelen skor, alttan büyüyen grafik çubukları, yöne göre kayan adım geçişleri, Premium açılınca rozet kutlaması ve "Rüyanı yorumla" ikonunda yavaş nefes animasyonu (`AppMotion.ambient`). Hareket azaltma açıkken hepsi son değere atlar.
+
 ## Teknolojiler
 
 | Alan | Kullanılan | Neden |
@@ -142,6 +183,7 @@ Tema sistem ayarını izler veya Ayarlar'dan elle seçilir. Koyu tema saf siyah 
 | Yerelleştirme | **flutter_localizations**, **intl** | TR locale; `NumberFormat` ile `8,25 sa`, `7s 42dk`, `HH:mm`. Metinler `AppStrings` sınıfında. |
 | Font | **Nunito** + **Figtree** (`assets/fonts/`) | Çevrimdışı çalışsın diye uygulamaya gömülü; `google_fonts` kullanılmaz. |
 | Lint | **very_good_analysis** | Katı lint kuralları; `flutter analyze` 0 uyarı. |
+| Test | **flutter_test** (sdk) | Domain, provider, router ve widget testleri `test/` altında. |
 | Sağlık (planlı) | `health` | HealthKit ve Health Connect, mevcut `SleepRepository` arayüzüyle eklenecek. |
 
 **Kod üretimi yok:** `build_runner`, `freezed`, `json_serializable`, `riverpod_generator` ve `gen-l10n` kullanılmaz. Modellerin `copyWith`, `==`, `toJson` / `fromJson` metotları elle yazılır; `flutter run` öncesi ek adım gerekmez.
@@ -167,6 +209,9 @@ lib/
     trends/  sleep_quality/  insights/  weekly_report/  streaks/
     track_sleep/             # Uyku modu, akıllı alarm planı
     routine/  sounds/  chronotype/  onboarding/  settings/
+    premium/                 # Entitlement, PremiumGate, /premium
+    health/                  # Uyku sağlığı skoru, borç, SRI, jetlag, öz-kontrol
+    dreams/                  # Rüya sekmesi, sembol sözlüğü, sorulu yorum, içgörüler
   debug/                     # Bileşen galerisi
 ```
 
@@ -238,10 +283,11 @@ flutter build web --release --no-web-resources-cdn
 
 ## Doğrulama
 
-Projede otomatik test yok. Her değişiklikten sonra:
+Her değişiklikten sonra:
 
 ```sh
 flutter analyze                                     # 0 sorun
+flutter test                                        # tüm testler geçmeli
 grep -rn "Color(0x" lib/ | grep -v core/theme       # boş olmalı
 grep -rnE "Text\('[^']" lib/features                # boş olmalı
 ```
@@ -249,6 +295,8 @@ grep -rnE "Text\('[^']" lib/features                # boş olmalı
 ## Proje kuralları
 
 - Tek doğruluk kaynağı [`CLAUDE.md`](CLAUDE.md): tokenlar, bileşenler, ekranlar ve yasaklar orada.
+- Premium dalgasının kapsamı ve kabul kriterleri [`ISKELET.md`](ISKELET.md), ajan rolleri (Geliştirici / Testçi / Raportör) [`AGENT.md`](AGENT.md), geliştirme raporu [`docs/RAPOR.md`](docs/RAPOR.md).
+- Sağlık ve rüya metinleri tanı koymaz, hastalık adı vermez, tedavi önermez.
 - Kullanıcıya görünen her metin `lib/core/strings/app_strings.dart` içindedir.
 - Commit mesajları `feat(summary): …`, `fix(theme): …` biçimindedir.
 - Fontlar SIL Open Font License altındadır (`assets/fonts/OFL-*.txt`).

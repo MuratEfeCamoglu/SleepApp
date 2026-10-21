@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Sleep & Recovery Tracker (Flutter)
 
-Bu dosya projede çalışan her ajanın ve geliştiricinin **tek doğruluk kaynağıdır**. Renk, tipografi, ölçü, bileşen ve ekran kararları buradadır. Bir ekran promptu bu dosyayla çelişirse bu dosya kazanır; değişiklik gerekiyorsa önce burayı güncelle.
+Bu dosya projede çalışan her ajanın ve geliştiricinin **tek doğruluk kaynağıdır**. Premium dalgasının kapsamı ve kabul kriterleri: `ISKELET.md`. Ajan rolleri (Geliştirici / Testçi / Raportör): `AGENT.md`. Renk, tipografi, ölçü, bileşen ve ekran kararları buradadır. Bir ekran promptu bu dosyayla çelişirse bu dosya kazanır; değişiklik gerekiyorsa önce burayı güncelle.
 
 Görsel referans: `Uyku sağlığı uygulaması.html` (5 ekran × açık/koyu: Bugün, Trendler, Kalite, Kaydet, Akşam rutini) — **ana ekranlarda bu dosya kazanır**. Diğer ekranlar (Kurulum, Uyku modu, Ayarlar, Galeri) Design kanvası "Sleep & Recovery — Mobil Uygulama"ya göredir. Ölçüler 390×844 pt çerçeveye göredir.
 
@@ -24,6 +24,7 @@ Görsel referans: `Uyku sağlığı uygulaması.html` (5 ekran × açık/koyu: B
 - `core/theme` dışında `Color(0x…)`, `Colors.*`, sabit `fontSize`, sabit `EdgeInsets` sayısı, sabit `BorderRadius` **yok**. Hepsi token'dan gelir.
 - Widget içinde kullanıcıya görünen sabit string **yok**. Hepsi `AppStrings`'ten (`lib/core/strings/app_strings.dart`) gelir.
 - Emoji UI öğesi olarak kullanılmaz.
+- Tanı koyan, hastalık adı söyleyen veya tedavi öneren metin **yok**; sağlık ve rüya ekranları "tanı değildir / bilimsel değildir" notunu taşır. Lisanslı ölçeklerin (Epworth, ISI, STOP-Bang, PSQI) metni kullanılmaz.
 - Sahte veri gerçekmiş gibi gösterilmez; fiyat vb. bilinmeyen değerler için mağaza verisi (RevenueCat/StoreKit) bağlanana kadar açıkça işaretli placeholder kullanılır.
 
 ## 3. Teknoloji yığını
@@ -43,6 +44,7 @@ Görsel referans: `Uyku sağlığı uygulaması.html` (5 ekran × açık/koyu: B
 | Font | `google_fonts` **yerine** fontları `assets/fonts/` altına göm (offline için) |
 | Sağlık (sonra) | `health` |
 | Lint | `very_good_analysis` |
+| Test | `flutter_test` (sdk); domain, provider, router ve widget testleri `test/` altında (golden yok) |
 
 Diğer kurallar:
 
@@ -78,6 +80,9 @@ lib/
     streaks/        { domain, presentation }         # Seriler ve rozetler
     routine/        { domain, data, presentation }   # Akşam rutini
     onboarding/     { domain, data, presentation }
+    premium/        { domain, data, presentation }   # Entitlement, PremiumGate, /premium
+    health/         { domain, data, presentation }   # Uyku sağlığı skoru, borç, SRI, jetlag, öz-kontrol
+    dreams/         { domain, presentation }         # Rüya sekmesi, sembol sözlüğü, yorum, sorulu yorum (dream_interview), içgörüler
     settings/       { domain, data, presentation }
   debug/
     component_gallery_screen.dart
@@ -86,18 +91,20 @@ lib/
 - `domain/`: elle yazılmış değişmez modeller + **abstract** repository (`abstract interface class SleepRepository`).
 - `data/`: `LocalSleepRepository` (shared_preferences); `HealthSleepRepository` sonradan aynı arayüzle eklenir. Provider override ile değiştirilir.
 - `presentation/`: ekran, ekran-özel widget'lar, Riverpod controller'lar (`Notifier`).
-- `core/theme/app_sizes.dart` (`AppSizes`): bileşen ölçüleri (dokunma hedefi, ikon, buton/chip yükseklikleri). Sabit boyut gerekiyorsa buraya ekle.
+- `core/theme/app_sizes.dart` (`AppSizes`): bileşen ölçüleri (dokunma hedefi, ikon, buton/chip yükseklikleri). Sabit boyut gerekiyorsa buraya ekle. İskelet yükseklikleri: `skeletonCard` 160, `skeletonMedium` 120, `skeletonRow` 88.
 
 ### 4.1 Veri akışı
 
 - `main.dart`: `SharedPreferences` yüklenir ve `sharedPreferencesProvider`a override edilir (override edilmezse provider hata fırlatır). `notificationServiceProvider` web'de `NoopNotificationService`, diğer platformlarda `LocalNotificationService` ile gelir.
 - Tek veri kaynağı `sleepLogProvider`dır (`features/sleep_log/presentation/sleep_log_providers.dart`, `AsyncNotifier<List<SleepEntry>>`, geceye göre artan sıralı). Bugün, Trendler, Kalite, Seriler, Rapor ve Etken analizi bu listeden türeyen provider'larla hesaplanır. Ayrı kalıcı özet tutulmaz.
 - Kayıt kimliği gece anahtarıdır: `SleepEntry.id = nightKey(nightOf(wake))` (`2026-09-24`; uyanıştan 12 saat geriye gidilerek bulunan akşam). Tarih aritmetiğinde `addDays`/`dateOnly` kullan (DST güvenli). Gece başına tek kayıt vardır.
+- `SleepEntry` rüya alanları: `note` (serbest metin), `DreamKind? dreamKind` (normal, lucid, nightmare, recurring) ve `List<DreamEmotion> dreamEmotions` (calm, joy, fear, sadness, anger, confusion). Enumlar `features/sleep_log/domain/dream_tags.dart`'tadır (`sleep_log` → `dreams` bağımlılığı yoktur; tersi vardır). Boş/null alanlar JSON'a yazılmaz; `fromJson` eksik veya bilinmeyen tür/duyguyu sessizce atlar. `copyWith(dreamKind: null)` türü temizler.
 - Evreler (Derin/REM/Hafif) ölçülmez, `SleepStages` ile süreden **tahmin** edilir. UI bunu "tahmini" diye sunar.
 - Şimdiki zaman yalnızca `clockProvider`dan okunur. `todayProvider` uygulama öne gelince (`AppLifecycleListener.onResume`) invalidate edilir.
 - `settingsControllerProvider` (`UserSettings`): `onboardingDone` ve `trackingStart` (Uyku modu) alanlarını içerir. `appRouterProvider` bu iki alanı dinleyip `redirect` ile kurulum ve uyku modu kilitlerini uygular (`AppRoutes.beforeOnboarding`, `AppRoutes.whileTracking`). Yeni tam ekran rota eklerken bu kümeleri gözden geçir.
+- `pendingDreamDraftProvider` (`log_editor.dart`): sorulu rüya yorumu kaydedilecek gece bulamazsa not/tür/duyguyu yalnız bellekte taşır; Kaydet ekranı notu boş ilk geceye uygular, gece kaydedilince temizlenir.
 - Bildirim payload'ı rota string'idir; `UykuApp` bunu `router.push` ile açar. Açılışta `syncReminder()` planlı bildirimleri yeniden kurar.
-- Dolu ekranları görmek için uygulamada **Ayarlar → Örnek verilerle doldur** kullanılır.
+- Dolu ekranları görmek için uygulamada **Ayarlar → Veri → Örnek verilerle doldur** kullanılır (yalnızca `kDebugMode`; onay sayfasından sonra son 60 geceyi `buildSampleEntries` — `features/settings/domain/sample_data.dart` — ile yazar, aynı gecelerin üzerine yazar). Gecelerin ~%40'ında sözlük sembolleri içeren rüya notu, tür ve duygu; rüyaların ~%15'i kabus.
 
 ## 5. Tasarım tokenları
 
@@ -218,6 +225,17 @@ Sayı biçimi TR locale'e göredir, `NumberFormat` kullan:
 | `pressScale` | Basılıyken 0.97 ölçek (`toggle` süresiyle), opaklık düşüşüyle birlikte |
 | `swap` | 240ms; buton etiketi değişince (ör. "Kaydedildi") solma + 0.97 → 1 ölçek |
 | `chartMorph` | 380ms `easeOutCubic`; trend çubukları aralık değişince akar |
+| `popScale` | 0.94; hafif ölçekli giriş (`Entrance(scaleFrom:)`): rüya yorumu "Genel tema" kartı, etiket çipleri, boş durum ikonu |
+| `ambient` | 4000ms tam döngü, ölçek 1 ↔ `ambientScale` 1.04 (sinüs); yalnız Rüya sekmesindeki "Rüyanı yorumla" ikonu (`AmbientBreath`). Hareket azaltmada durağan, `TickerMode` kapalıyken (ekran dışı sekme/rota) durur |
+
+Hareket yardımcıları (`core/widgets/entrance.dart`, `core/widgets/motion.dart`):
+
+- `Entrance`: `TabPage` ve `FullPage` öğeleri ilk açılışta kademeli gelir (`entrance`). `offset: 0` yalnız solma, `scaleFrom` hafif ölçek.
+- `CountUp`: skor sayıları 0'dan `ringFill`/`ringCurve` ile sayar (halka dolumuyla senkron); ara değerler semantikten çıkarılır, son değeri üstteki `Semantics` okur.
+- `CelebrateBounce`: `celebrate` deseni (1 → 1.35 → 1 + `HapticFeedback.lightImpact`), bir kez ("Premium aktif").
+- `GrowIn`: grafik çubukları ilk açılışta 0'dan büyür (`chartMorph`, Uyku sağlığı 30 gece grafiği).
+- `PremiumGate` kilitli ↔ açık geçişi `swap` ile solar; `PrimaryPillButton` etkin/pasif opaklığı `swap` ile geçer; `StepProgress` segmentleri `pageTransition` ile soldan dolar; rüya yorumu adımları ileride sağdan, geride soldan kayar (fade + 16px).
+- Süreler `AppMotion.of(context, d)` ile alınır (hareket azaltmada `Duration.zero`).
 
 `MediaQuery.disableAnimations` true ise animasyonlar son değere atlar.
 
@@ -233,8 +251,8 @@ Sayı biçimi TR locale'e göredir, `NumberFormat` kullan:
 ## 6. Navigasyon
 
 - `go_router` + `StatefulShellRoute.indexedStack` ile 5 sekme (HTML'deki alt panel):
-  - **Bugün** `/` · **Trendler** `/trends` · ortada **Kaydet** `/log` · **Kalite** `/quality` · **Rutin** `/routine`
-- Tam ekran rotalar (shell dışı): `/onboarding`, `/track`, `/settings`, `/goals`, `/chronotype`, `/report`, `/sounds`, `/breathe`, `/badges`, `/debug/gallery` (yalnızca `kDebugMode`). Ortak iskelet `FullPage` (`core/widgets/full_page.dart`).
+  - **Bugün** `/` · **Trendler** `/trends` · ortada **Kaydet** `/log` · **Kalite** `/quality` · **Rüya** `/dreams` (ikon `AppIcons.dream`)
+- Tam ekran rotalar (shell dışı): `/onboarding`, `/track`, `/settings`, `/goals`, `/chronotype`, `/report`, `/sounds`, `/breathe`, `/badges`, `/premium`, `/health`, `/health/check`, `/routine` (Bugün öneri kartı ve Ayarlar'dan `push`), `/dreams/interpret` (`?night=` opsiyonel; `/dreams/:night`'tan **önce** tanımlanır), `/dreams/:night`, `/debug/gallery` (yalnızca `kDebugMode`). Ortak iskelet `FullPage` (`core/widgets/full_page.dart`).
 - Kurulum bitmeden yalnızca `/onboarding` ve `/chronotype` açılır; Uyku modu açıkken yalnızca `/track`, `/sounds`, `/breathe`.
 - Bildirime dokunulunca payload'daki rota açılır (haftalık rapor → `/report`).
 - `AppNavPanel` özel widget'tır:
@@ -242,7 +260,7 @@ Sayı biçimi TR locale'e göredir, `NumberFormat` kullan:
   - 5 kolon; etiket + 22pt ikon. Seçili `honey`, diğerleri `onPanelMuted`.
   - Ortada `FloatingCenterAction` (64pt honey daire, 4px panel halkası, 30pt yukarı taşar) + "Kaydet" etiketi.
 - Ayarlar, Bugün başlığındaki sağ üst `CircleIconButton`'dan açılır.
-- İlk açılış: Kurulum → Bugün. Paywall şimdilik yok (abonelik kapsam dışı).
+- İlk açılış: Kurulum → Bugün. Paywall yalnızca `/premium` ekranıdır (açılışta zorla gösterilmez); kilitli yüzeyler `PremiumGate` ile sarılır. Gerçek ödeme henüz yok: fiyat açık placeholder, debug'da yerel kilit açma butonu.
 - Uyku modu açıkken uygulama her açılışta `/track`'e yönlenir.
 
 ## 7. İmza bileşenler (`core/widgets/`)
@@ -295,6 +313,7 @@ Ek paylaşılanlar:
 - `SettingsGroup` / `SettingsRow`.
 - `SkeletonBlock`.
 - `EmptyState`, `ErrorState`.
+- `PremiumGate` / `PremiumLockCard` (`features/premium/presentation/premium_gate.dart`; premium provider'ına bağlı olduğu için `core/widgets` dışında): `PremiumGate(child:, preview:, title:, message:)`. Premium açıksa `child`; kapalıyken `child` yerini korur ama `surfaceMuted` örtüyle gizlenir (blur yok) ve üstte kilit kartı (honey tint daire + kilit ikonu, başlık, açıklama, "Premium ile aç" → `/premium`). `preview` verilirse örtü yerine önce kısıtlı içerik, altında kilit kartı.
 
 ## 8. Ekranlar
 
@@ -302,21 +321,30 @@ Ek paylaşılanlar:
 |---|---|---|
 | Bugün | HTML 1 | Tarih + selam + ayarlar butonu → SleepRingChart 240pt (dış toplam/hedef, orta sage REM, iç ember Derin) merkezde "Dün gece · 7s 42dk" → 3 StageMetricTile (REM, Derin, Hafif) → DeltaBadge (geçen haftaya göre) → öneri kartı + "Akşam rutinini aç". |
 | Kaydet | HTML 4 | Geri + "X gecesi" → yatış/uyanış ±5 dk → toplam → "Nasıl uyandın?" 5 chip → "Uykunu etkileyenler" 7 chip → "Uykuyu kaydet" (kaydedilince sage "Kaydedildi"). Altta "Uyku modunu başlat". |
-| Akşam rutini | HTML 5 | Hatırlatıcı switch → ilerleme çubuğu → 5 işaretlenebilir adım. |
+| Akşam rutini | HTML 5 · `/routine` | Tam ekran `FullPage` (geri butonlu); Bugün'deki "Akşam rutinini aç" ve Ayarlar → Uyku → "Akşam rutini"nden `push` ile açılır. Hatırlatıcı switch → ilerleme çubuğu → 5 işaretlenebilir adım. |
 | Uyku Kalitesi | HTML 3 | "Son 30 gece" → 5 dilimli fan (Dinlendirici, İyi, Orta, Bölünmüş, Uykusuz), merkezde "%60 iyi geçen gece" → seçilebilir satır listesi. |
 | Trendler | HTML 2 | Hafta/Ay/Yıl SegmentedPill → ortalama + DeltaBadge → `fl_chart` yığılı bar (Derin/REM/Hafif), kesikli hedef çizgisi, seçili bar tam opak → Ort. yatış / Ort. uyanış kartları. |
 | Uyku modu | Uyku modu | Her zaman dark. Pill "Uyku modu" → 300pt ember halka içinde `displayClock` ve geçen süre → alarm penceresi → "Bitirmek için basılı tut" + hold-to-confirm "Uyandım" (1.2s). Bitince "Günaydın" özeti. `// TODO(brightness): screen_brightness ile parlaklığı düşür, çıkışta geri al.` `WakelockPlus` değerlendirilecek. |
 | Kurulum (3 adım) | Kurulum 1–3 | Üstte 3 pill segment ilerleme. 1: hedef süre (±0.25 sa, 5–11 sa aralığı). 2: yatış saati, özel `BedtimePicker` (iki `CupertinoPicker`, 15 dk aralık; seçim bandı `espresso` pill, seçili satır `onEspresso` kalın, diğerleri `textSecondary`) + hesaplanan alarm penceresi. 3: Sağlık ve Bildirim izin kartları. Alt CTA'lar: Devam / Başlayalım. |
-| Ayarlar | Ayarlar | Gruplar: Uyku, Uygulama, Veri. Kart `xl` radius. Satır 60pt: 36pt dolu **deep** renk daire + krem ikon, etiket, değer, chevron. Ayraç 1px `border`, 66pt içeriden başlar. |
+| Ayarlar | Ayarlar | Gruplar: Üyelik (Premium satırı, Aktif/Kapalı → `/premium`), Uyku, Uygulama, Veri. Kart `xl` radius. Satır 60pt: 36pt dolu **deep** renk daire + krem ikon, etiket, değer, chevron. Ayraç 1px `border`, 66pt içeriden başlar. |
 | Etken analizi | Trendler altı kartı | Son 60 gecede her etken için etkenli/etkensiz gecelerin ortalama süresi ve iyi gece oranı; her iki tarafta en az 3 gece. Evreler tahmini olduğundan evre karşılaştırması yapılmaz; "neden-sonuç değildir" notu gösterilir. |
 | Kronotip testi | `/chronotype` | 5 soru (kısaltılmış Horne–Östberg puanlaması: ≤11 akşamcı, ≥18 sabahçı) → tür + önerilen yatış (doğal uyanış − hedef süre, 15 dk'ya yuvarlı). Kurulum 2. adımdan ve Ayarlar'dan açılır; kurulumda saati geri döndürür, sonrasında ayara yazar. |
 | Haftalık rapor | `/report` | Pazar akşamından cumartesi akşamına 7 gece. Ortalama + önceki haftaya fark, kayıtlı/hedefe ulaşılan gece, ort. yatış/uyanış, düzenlilik (yatış sapması), en iyi gece, en sık etken. Pazar 09:00 bildirimi (ayarla kapatılır); pazar günü Bugün'de kart. |
 | Akıllı alarm | Uyku modu | Hafif uykuyu **ölçmez**: 15 dk dalma + 90 dk döngü varsayımıyla pencere (uyanış − 30 dk … uyanış) içindeki son döngü sonuna kurulur; yoksa pencere sonuna. Ekranda "tahmini" yazar. Ayarlar'dan ve Uyku modu boş ekranından kapatılır. |
 | Uyku sesleri | `/sounds` | Uyku müziği, Piyano, Uyku döngüsü, Lo-fi (`assets/sounds/*.mp3`, döngüde çalar). Zamanlayıcı 15/30/60 dk/sürekli, sonunda 8 sn kısılarak durur. Rutin kartından ve Uyku modundan açılır. |
 | 4-7-8 nefes | `/breathe` | 4 sn al, 7 sn tut, 8 sn ver; 4 tur. Bitince rutindeki nefes adımı işaretlenir. Hareket azaltmada daire büyümez. |
-| Rüya günlüğü | Kaydet ekranı | Etkenlerin altında serbest not (en çok 1000 karakter); kayıtla birlikte saklanır. |
+| Rüya günlüğü (Kaydet) | Kaydet ekranı | Etkenlerin altında serbest not (en çok 1000 karakter), altında "Rüya türü" (4 `ChoicePill`, tek seçim; seçiliye yeniden dokununca kalkar) ve "Rüyada ne hissettin?" (6 `ChoicePill`, çoklu) `Wrap`'leri; hepsi kayıtla saklanır ve "Kaydedildi" karşılaştırmasına girer. Kaydedilmiş notu olan gecede `LinkButton` "Rüyanı yorumla" → `/dreams/:night`. |
 | Seriler ve rozetler | `/badges` + Bugün kartı | Seri: hedef süreye ulaşılan ardışık geceler (dün gecenin kaydı henüz yoksa önceki geceden sayılır). 11 rozet kayıtlardan hesaplanır; yalnızca "görüldü" listesi saklanır, yeni rozet Bugün'de işaretlenir. |
 | Hedef ayarları | `/goals` | Hedef süre, hedef yatış, hafta sonu esnekliği (0/30/60/90/120 dk; cuma ve cumartesi geceleri yatış ve uyanış kayar). Hatırlatıcı her gece için ayrı haftalık bildirim; alarm, Bugün önerisi ve rutin de geceye göre hedefi kullanır. |
+| Premium | `/premium` | Ücretsiz/Premium karşılaştırma listesi, fiyat placeholder'ı ("Fiyat mağaza bağlanınca gösterilecek"), release'te pasif "Yakında" butonu, debug'da "Premium'u dene (geliştirici)". `PremiumGate`: kilitli içerik `surfaceMuted` örtü + kilit ikonu + "Premium ile aç". |
+| Uyku sağlığı | `/health` + Bugün kartı | `healthSnapshotProvider` (`sleepLogProvider` + ayarlar + `todayProvider`), saf fonksiyonlar `features/health/domain/health_snapshot.dart`. Üstte tek halkalı `HealthScoreRing` (`SleepRingChart`, `AppSizes.healthRing` 200; bant rengi 70+ sage, 50–69 honey, <50 ember; merkezde skor + bant etiketi) → Uyku borcu / Düzenlilik (SRI) / Sosyal jetlag kartları (nokta + değer + kısa açıklama; veri azsa "Daha fazla kayıt gerekli") → "Ayrıntılı analiz" `PremiumGate`: bileşen dökümü (puan/max çubukları), 30 gecelik skor bar grafiği (`fl_chart`, bant renkli), 2–3 kural tabanlı öneri → "Uyku sağlığı kontrolünü yap" kartı (son sonuç tarihi) → "Bu skor tahminidir, tıbbi değerlendirme değildir." 14 gecede 3'ten az kayıtta `EmptyState`. Borç gece sırasıyla işlenir, sıfırın altına inmez. Bugün kartı (`HealthSummaryCard`) seri kartının altında. Formüller ISKELET.md §5. |
+| Sağlık kontrolü | `/health/check` | Kendi yazdığımız 6 soru (`HealthQuestion`), her biri 4 `ChoicePill` (Hiç / Bazen / Sık / Neredeyse her gece = 0–3). Hepsi cevaplanmadan "Sonucu gör" %40 opak. Sonuç aynı ekranda: bayrak kartları (honey tint, gözlem dili + "Bir uzmana danışmayı düşün.") ya da "Belirgin bir işaret yok" kartı, `surfaceMuted` "Bu bir tanı değildir" notu (soru ve sonuç görünümünde), "Kontrolü yeniden yap". Son sonuç `health.check.v1`'de (`healthCheckProvider`). Ücretsiz; hastalık adı kullanılmaz. |
+| Rüya günlüğü (liste) | `/dreams` sekmesi (`DreamsScreen`, `TabPage`) | Alt paneldeki 5. sekme; Ayarlar → Uyku → "Rüya günlüğü" `go` ile sekmeye geçer. En üstte `DreamInterpretCard` (honey ikon dairesi, kısa açıklama, `PrimaryPillButton` "Başla" → `/dreams/interpret`), altında `DreamInsightsCard` (tamamı `PremiumGate`) → arama alanı (Kaydet'teki not alanı görünümünde; `normalizeTr` ile TR büyük/küçük harf duyarsız, notta geçen metni süzer) → tür filtresi (`ChoicePill` `Wrap`: Tümü/Normal/Berrak/Kabus/Tekrarlayan) → "N rüya notu" → satırlar (tarih + tür etiketi `DreamTag`, notun ilk 2 satırı, chevron; dokununca `/dreams/:night`). Liste `dreamJournal()` ile: yalnız notu olan geceler, yeniden eskiye. Hiç not yoksa `EmptyState` (+ "Uykunu kaydet"); süzgeç boş dönerse "Sonuç yok". Ücretsiz. |
+| Rüya yorumu | `/dreams/:night` (`DreamDetailScreen`) | Üst satır "d MMMM y, EEEE gecesi", başlık "Rüyan" → tür + duygu etiketleri → notun tamamı → "YORUM": `readDream(entry)` sembolleri; ücretsizde ilk sembol kartı açık, kalanlar + genel tema `PremiumGate(preview:)` ile. Sembol yoksa "Bu notta sözlükteki bir sembol bulamadık" + tema (premium). Kabusta sakinleştirici "Kabustan sonra" kartı (ücretsiz; "Rüyanın sonunu kendi istediğin gibi yeniden yazmayı dene"). Her durumda "Rüya yorumları eğlence ve öz-yansıtma içindir; bilimsel veya tıbbi değildir." → "Sorularla yorumla" (`AppRoutes.dreamInterpretNight`) → "Notu düzenle" → `AppRoutes.logNight`. Gece/not yoksa `EmptyState`. Sözlük `features/dreams/domain/dream_symbols.dart` (75 sembol; `keywords` kelime başı kökler, `words` tam kelime, `excludes` istisna kökler; çok kelimeli anahtar ardışık kelimeyle eşleşir). Sembol başlık/yorumları ve tema cümleleri (`DreamThemes`) **alan verisi** olarak domain'de durur (`AppStrings`'te değil); ekran metinleri `AppStrings` `// Rüya` bölümündedir. Dil yansıtıcı ve temkinlidir; kehanet/sağlık iddiası yok. |
+| Rüya içgörüleri | `/dreams` kartı | `computeDreamInsights(entries, today)` (`dreamInsightsProvider`): son 90 gece (dün dahil) rüyalı (not/tür/duygu) geceler; en sık 5 sembol (gece sayısı azalan, eşitlikte sözlük sırası); kabus oranı (türü girilmiş rüyalar içinde) ve kabus gecelerinin ortalama süresi vs diğer rüyalı geceler — kabus ve diğer tarafta en az 3 gece yoksa gösterilmez ("…en az 3 gece gerekli"); kabus gecelerinde en az 3 kez işaretlenen en sık etken. "Karşılaştırmadır, neden-sonuç göstermez." notu. Premium. |
+| Rüya yorumu (sorulu) | `/dreams/interpret` (`DreamInterpretScreen`) | `FullPage` + `StepProgress` (7 segment). Adım 0: rüya notu (Kaydet not alanı görünümü, en çok 1000 karakter) + opsiyonel tür `ChoicePill`'leri + "Günlükten seç" (notu olan son 5 gece, `OptionCard`); `?night=` verilirse o gecenin notu/türü/baskın duygusu yüklenir. Adım 1–6 tek soru, `OptionCard` seçenekleri: baskın duygu, uyanınca his, kontrol, tanıdık kişiler (çoklu + "Hiçbiri"), yaşam teması, tekrar. "İleri" cevapsızken (adım 0'da not boşken) pasif; başlıktaki geri önceki adıma döner, cevaplar korunur. Geçiş `AnimatedSwitcher` (solma + 16px, `AppMotion.pageTransition`; hareket azaltmada anında). Sonuç: Genel tema, Duygu ve yaşam bağlantısı, Kendine sorabileceklerin (2–3), Küçük bir öneri (yeniden yazma / 4-7-8 nefes → `/breathe` / akşam kapanışı → `/routine` / not etmeye devam / iyi hissi taşı) ücretsiz; "Semboller ve cevapların" ve "Uykunla ilişkisi" (`dreamInsightsProvider`, en az 3 rüyalı gece yoksa "…gerekli") `PremiumGate`. Uyarı metni her zaman görünür. "Geceye kaydet"/"Dün geceye kaydet": o gecenin `SleepEntry`'sinde not, tür ve baskın duygu güncellenir (`SleepLog.save`); dün gece kaydı yoksa yeni kayıt açılmaz, Kaydet ekranına bağlantı gösterilir. Kaydetmeden çıkılırsa hiçbir şey saklanmaz (`dreamInterviewProvider` autoDispose). Motor `inferDream()` (`dreams/domain/dream_interview.dart`) saf ve deterministiktir; şablonlar `DreamInterviewTexts`'te alan verisidir. |
+| Dışa aktarma | Ayarlar → Veri | Premium. "CSV olarak kopyala": `entriesToCsv` (`features/settings/domain/csv_export.dart`) tüm kayıtları panoya kopyalar, `showAppToast` ile "Kopyalandı". Başlık `gece,yatis,uyanis,sure_dk,uyanis_hissi,etkenler,ruya_turu,not`; geceye göre artan, yerel ISO 8601 (`2026-09-24T23:15`), etkenler `;` ile, RFC 4180 kaçırma, `
+`. Premium değilse satır "Premium" değeri + kilit ikonuyla `/premium`a gider; kayıt yoksa "Kayıt yok" ve pasif. |
 | Durumlar | Özet · boş/yükleniyor/hata | Boş: track'ler + ay ikonu + "İlk uykunu kaydet" + CTA. Yükleniyor: `surfaceMuted` bloklar, opaklık nabzı. Hata: sakin dil + outline "Tekrar dene". |
 | Bileşen Galerisi | Bileşen Galerisi sayfası | `/debug/gallery`: Halka / Kontrol / Fan / Renk / Ölçü sekmeleri, light + dark. |
 
@@ -339,19 +367,20 @@ Ek paylaşılanlar:
 
 ## 11. Doğrulama
 
-Projede test yok.
+Domain, provider, router ve widget testleri `test/` altındadır (golden test yok).
 
 ```sh
 flutter pub get
 flutter run              # ilk açılışta Kurulum gelir
 flutter analyze
+flutter test
 ```
 
 - `pubspec.yaml`: `path_provider_android` 2.2.x'e sabitlenmiştir (2.3+ NDK 28.2 indirtir). Kaldırmadan önce sor.
 - Uyku sesi eklemek için dosyayı `assets/sounds/` altına koy ve `lib/features/sounds/domain/sleep_sound.dart` içindeki `SleepSound`'a ekle. (`tool/generate_sounds.py` eski WAV gürültü üreticisidir; mevcut MP3'leri üretmez.)
 - Uygulama ikonu `python tool/generate_icon.py` ile üretilir (Pillow): Android legacy + adaptive + monochrome, iOS, web. İkonu değiştirmek için PNG'leri elle düzenleme, scripti değiştirip yeniden çalıştır.
 
-1. `flutter analyze` **0 uyarı** vermeli (`very_good_analysis`).
+1. `flutter analyze` **0 uyarı** vermeli (`very_good_analysis`); `flutter test` geçmeli.
 2. Sabit değer taraması:
    - `grep -rn "Color(0x" lib/ | grep -v core/theme` → **boş** olmalı.
    - `grep -rnE "Text\('[^']" lib/features` → **boş** olmalı (`AppStrings` dışı string).
